@@ -1,5 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+build/
+*.local
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,24 +16,56 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Test / coverage
+coverage/
+*.lcov
 
-# Editor directories and files
+# TypeScript / tooling caches
+*.tsbuildinfo
+.eslintcache
+.oxlintcache
+.cache/
+.temp/
+.tmp/
+node_modules/.tmp/
+
+# Vite / PWA
+dev-dist/
+.vite/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*~
 
-# AI reference files
+# Optional local scratch / agent handoffs
+.scratch/
+.out-of-scope/
+
+# Electron (if used later)
+out/
+release/
+
+# AI related
+*.llm
 .agents
-docs/*
+docs/**
 AGENTS.md
 CONTEXT.md
