@@ -18,12 +18,12 @@ export function JoinSettings({
     <div className="settings">
       <div className="settings-title">
         <Settings2 size={17} />
-        合并设置
+        导出与拼接
       </div>
-      <label htmlFor="name">导出文件名</label>
+      <label htmlFor="name">导出名</label>
       <input id="name" value={outputName} onChange={(event) => onOutputNameChange(event.target.value)} />
       <fieldset>
-        <legend>文件设置</legend>
+        <legend>Join Mode</legend>
         <label>
           <input
             type="radio"
@@ -31,25 +31,25 @@ export function JoinSettings({
             checked={joinMode === 'plain'}
             onChange={() => onJoinModeChange('plain')}
           />
-          留出空行
+          Plain（空行）
         </label>
         <label>
           <input
             type="radio"
             name="join"
-            checked={joinMode === 'line'}
-            onChange={() => onJoinModeChange('line')}
+            checked={joinMode === 'rule'}
+            onChange={() => onJoinModeChange('rule')}
           />
-          插入分隔线
+          Rule（分隔线）
         </label>
         <label>
           <input
             type="radio"
             name="join"
-            checked={joinMode === 'heading'}
-            onChange={() => onJoinModeChange('heading')}
+            checked={joinMode === 'filename-heading'}
+            onChange={() => onJoinModeChange('filename-heading')}
           />
-          加上文件标题
+          Filename Heading（文件名标题）
         </label>
       </fieldset>
     </div>

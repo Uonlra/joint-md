@@ -5,12 +5,12 @@ export const makeDocument = (files: SourceFile[], mode: JoinMode) =>
   files
     .map((file) => {
       const content = file.content.trim()
-      return mode === 'heading'
+      return mode === 'filename-heading'
         ? `# ${file.name.replace(/\.(md|markdown)$/i, '')}\n\n${content}`
         : content
     })
     .filter(Boolean)
-    .join(mode === 'line' ? '\n\n---\n\n' : '\n\n')
+    .join(mode === 'rule' ? '\n\n---\n\n' : '\n\n')
 
 export const documentHash = (value: string) => {
   let hash = 0

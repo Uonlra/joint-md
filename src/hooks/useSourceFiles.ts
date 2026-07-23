@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { SourceFile } from '../types'
+import { acceptSourceFiles, isAcceptedSourceFileName } from '../utils/sourceFiles'
 
 export function useSourceFiles() {
   const [files, setFiles] = useState<SourceFile[]>([])
@@ -7,20 +8,17 @@ export function useSourceFiles() {
   const [notice, setNotice] = useState('')
 
   const addFiles = async (incoming: FileList | File[]) => {
-    const accepted = Array.from(incoming).filter((file) => /\.(md|markdown)$/i.test(file.name))
-    if (!accepted.length) {
-      setNotice('请选择 .md 或 .markdown 文件。')
-      return
-    }
-    const entries = await Promise.all(
-      accepted.map(async (file) => ({
-        id: crypto.randomUUID(),
+    const candidates = await Promise.all(
+      Array.from(incoming).map(async (file) => ({
         name: file.name,
-        content: await file.text(),
+        content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
       })),
     )
-    setFiles((current) => [...current, ...entries])
-    setNotice(`已添加 ${entries.length} 个文件。`)
+    const result = acceptSourceFiles(candidates)
+    if (result.files.length) {
+      setFiles((current) => [...current, ...result.files])
+    }
+    setNotice(result.notice)
   }
 
   const moveFile = (from: number, to: number) => {
