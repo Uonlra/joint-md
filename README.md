@@ -1,103 +1,108 @@
 # Joint MD
 
-一个完全在浏览器本地运行的 Markdown 合并与阅读工具。它可以将多个 `.md` / `.markdown` 文件按指定顺序拼接，实时预览结果，并导出 Markdown 或通过浏览器另存为 PDF。
+A **local-only** client that joins multiple Markdown source files into one **Merged Document**, previews it with GitHub Flavored Markdown, and supports **Export Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
 
-## 功能
+## Features
 
-- 拖拽或选择多个 `.md`、`.markdown` 文件
-- 调整合并顺序：拖拽、上移、下移、移除文件
-- 三种 Join Mode：Plain（空行）、Rule（分隔线）、Filename Heading（文件名标题）
-- GitHub Flavored Markdown 预览，支持表格、代码块、引用和任务列表
-- 导出合并后的 `.md` 文件
-- 打开打印窗口并使用浏览器“另存为 PDF”
-- 阅读模式：收起文件队列，专注阅读正文
-- 自动生成 H1-H3 目录，可跳转到对应章节
-- 调整字号、护眼纸张色
-- 在浏览器中保存字号、纸张色与相同文档的阅读进度
-- 所有文件仅在当前浏览器页面内处理，不上传到服务器
+- Drag or pick multiple `.md` / `.markdown` files into a **File Queue**
+- Reorder (drag, up/down), remove, and jump to a source’s start in the preview
+- **Join Mode**: Plain (blank lines), Rule (horizontal rule), Filename Heading
+- Live GFM preview (tables, code, blockquotes, task lists, …)
+- **Export Markdown** download of the merged result
+- **Print to PDF** via the browser print dialog
+- **Reader Mode**, table of contents (H1–H3), font size, soft paper tint
+- **Reader Preferences** and **Reading Progress** in browser storage (not file bodies)
+- Installable **PWA** (standalone window; app shell cache only)
 
-## 技术栈
+## Stack
 
-- React 19
-- TypeScript
-- Vite
-- react-markdown + remark-gfm
-- lucide-react
-- 浏览器 File API、Blob API、localStorage、原生 Drag and Drop API
+- React 19 + TypeScript + Vite
+- `vite-plugin-pwa`
+- `react-markdown` + `remark-gfm`
+- `lucide-react`
+- Browser File / Blob / `localStorage` / Drag and Drop APIs
 
-第一版没有后端、数据库、账户系统或云端文件存储。
+## Requirements
 
-## 本地运行
+Node.js **20+**
 
-环境要求：Node.js 20 或更高版本。
+## Scripts
 
 ```bash
-cd joint-md
 npm install
-npm run dev
+npm run dev       # development server
+npm run build     # typecheck + production build (includes PWA assets)
+npm run preview   # serve dist (use this to test PWA install)
+npm run lint      # oxlint
+npm test          # vitest
 ```
 
-启动后访问终端输出的本地地址，通常为：
+Dev server is usually at `http://127.0.0.1:5173`.
+
+## Usage
+
+1. Add Markdown files to the File Queue (left).
+2. Set order and **Join Mode**; set **Export Name**.
+3. Preview the Merged Document (right).
+4. Click a queue file name to scroll the preview to that source’s start.
+5. **Export Markdown** or **Print to PDF** (then choose “Save as PDF” in the system dialog).
+6. Use **Reader Mode** for immersive reading (TOC, font size, paper tint).
+
+## Print to PDF
+
+PDF uses the **browser print flow** (no headless Chromium or PDF library). After **Print to PDF**:
 
 ```text
-http://127.0.0.1:5173
+Destination: Save as PDF
 ```
 
-生产构建：
+Selectable text is preserved better than screenshot-style PDF tools.
 
-```bash
-npm run build
-```
+See `docs/adr/0001-print-to-pdf-via-browser.md`.
 
-静态检查：
+## Install as a PWA
 
-```bash
-npm run lint
-```
+1. `npm run build && npm run preview` (or host `dist` over **HTTPS** / `localhost`)
+2. In a supported browser, use **Install app** / **Install Joint MD**
+3. Launch from the desktop or app list (standalone window)
 
-## 使用说明
+Notes:
 
-1. 在左侧拖入或选择需要合并的 Markdown 文件。
-2. 使用拖拽手柄或上下箭头确定文件顺序。
-3. 选择 Join Mode，并设置导出名。
-4. 在右侧确认预览结果。
-5. 点击“导出 Markdown”下载合并文件，或点击“打印为 PDF”，在浏览器打印面板中选择“另存为 PDF”。
-6. 点击顶部“阅读模式”进入沉浸式阅读；可使用工具栏的目录、字号和纸张色控制。
+- The service worker caches the **app shell** only (HTML/JS/CSS/fonts/icons). It does **not** store Source File content.
+- Closing or reloading clears the File Queue (**Session Content**). Preferences and reading progress stay in **Browser Memory** (`localStorage`).
+- PWA is disabled in `npm run dev`; use `build` + `preview` to verify install.
 
-## PDF 说明
-
-本项目的 PDF 导出使用浏览器原生打印能力，因此无需安装 Playwright、Chromium 或运行 Node 服务。点击“打印为 PDF”后，请在系统打印界面选择：
-
-```text
-目标：另存为 PDF
-```
-
-这比浏览器端截图式 PDF 更稳定，也能更好保留文本的可搜索性和复制能力。
-
-## 当前范围
-
-第一版不包含以下功能：
-
-- PDF 转 Markdown
-- 扫描件 OCR
-- 保证复杂 PDF 的版式还原
-- 云端存储、协作、账号与同步
-
-PDF 本身通常不含完整的语义结构，PDF 转 Markdown 在复杂排版、表格、双栏文档和扫描件上很难可靠还原。因此该功能会在后续版本以独立模块评估，而不会影响当前轻量本地工具的使用。
-
-## 项目结构
+## Project layout
 
 ```text
 joint-md/
 ├─ src/
-│  ├─ App.tsx        # 文件合并、阅读器、导出逻辑
-│  ├─ App.css        # 工作台与阅读模式样式
-│  ├─ main.tsx       # React 入口
-│  └─ index.css      # 全局基础样式
+│  ├─ workbench/     # Workbench orchestration, export, reading progress
+│  ├─ components/    # File queue & preview UI
+│  ├─ pages/         # MergePage adapter
+│  ├─ utils/         # join, TOC, source acceptance
+│  ├─ main.tsx       # entry + PWA registration
+│  └─ index.css      # design tokens
+├─ public/           # icons & PWA assets
+├─ docs/             # agent docs & ADRs
+├─ CONTEXT.md        # domain glossary
 ├─ package.json
 └─ vite.config.ts
 ```
 
-## 隐私
+## Privacy
 
-选择的文件由浏览器 File API 读取，只存在于当前页面内存中。刷新页面或关闭标签页后，文件内容会被清除；仅阅读器的字号、纸张色和滚动位置会保存到当前浏览器的 `localStorage`。
+Files are read with the File API and held in page memory only. They are not uploaded to a Joint MD server. Reload/close clears source content; only small preferences and per-document scroll positions may remain in `localStorage`.
+
+See `docs/adr/0002-local-only-no-server-file-processing.md`.
+
+## Out of scope (v1)
+
+- PDF → Markdown, OCR, faithful complex PDF layout
+- Cloud storage, accounts, collaboration
+- Server-side processing of user files
+- Resolving relative assets against each source file’s original path
+
+## License
+
+Private project (`private: true` in `package.json`) unless otherwise stated.
