@@ -1,5 +1,6 @@
 import type { JoinMode, SourceFile, TableOfContentsItem } from '../types'
-import { buildToc, documentHash, makeDocument } from '../utils/document'
+import { buildToc, makeDocument } from '../utils/document'
+import { keyFromMergedDocument } from './readingProgress'
 
 export type DerivedMergedDocument = {
   markdown: string
@@ -15,6 +16,6 @@ export const deriveMergedDocument = (
   return {
     markdown,
     toc: buildToc(markdown),
-    progressKey: documentHash(markdown),
+    progressKey: keyFromMergedDocument(markdown),
   }
 }

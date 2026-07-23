@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { JoinMode, SourceFile } from '../types'
-import { downloadFile } from '../utils/download'
-import { printPdf } from '../utils/print'
 import { acceptSourceFiles, isAcceptedSourceFileName } from '../utils/sourceFiles'
 import { deriveMergedDocument } from './deriveMergedDocument'
-import { persistReadingProgress, restoreReadingProgress } from './readingProgress'
+import { exportMarkdown as runExportMarkdown, printToPdf as runPrintToPdf } from './exportDocument'
+import { persistReadingProgress, scheduleRestoreReadingProgress } from './readingProgress'
 
 export function useWorkbench() {
   const [files, setFiles] = useState<SourceFile[]>([])
@@ -28,12 +27,10 @@ export function useWorkbench() {
     localStorage.setItem('joint-md-soft-paper', String(softPaper))
   }, [softPaper])
 
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      restoreReadingProgress(derived.progressKey, previewRef.current)
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [derived.progressKey])
+  useEffect(
+    () => scheduleRestoreReadingProgress(derived.progressKey, () => previewRef.current),
+    [derived.progressKey],
+  )
 
   const addFiles = async (incoming: FileList | File[]) => {
     const candidates = await Promise.all(
@@ -82,22 +79,13 @@ export function useWorkbench() {
   }
 
   const exportMarkdown = () => {
-    downloadFile(
-      derived.markdown,
-      `${exportName || 'merged-document'}.md`,
-      'text/markdown;charset=utf-8',
-    )
+    const { notice: nextNotice } = runExportMarkdown(derived.markdown, exportName)
+    if (nextNotice) setNotice(nextNotice)
   }
 
   const printToPdf = () => {
-    const content = previewRef.current?.innerHTML
-    if (!content) return
-    const error = printPdf(content, exportName || 'merged-document')
-    if (error) {
-      setNotice(error)
-      return
-    }
-    setNotice('已打开打印窗口，请在目标中选择“另存为 PDF”。')
+    const { notice: nextNotice } = runPrintToPdf(previewRef.current?.innerHTML, exportName)
+    if (nextNotice) setNotice(nextNotice)
   }
 
   const queue = {
