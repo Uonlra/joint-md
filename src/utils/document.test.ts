@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { SourceFile } from '../types'
-import { makeDocument } from './document'
+import { buildToc, makeDocument } from './document'
 
 const source = (name: string, content: string, id = name): SourceFile => ({
   id,
@@ -44,5 +44,38 @@ describe('Merged Document join', () => {
   it('derives only from File Queue order and Join Mode (no merge job)', () => {
     const queue = [source('second.md', 'B'), source('first.md', 'A')]
     expect(makeDocument(queue, 'plain')).toBe('B\n\nA')
+  })
+})
+
+describe('Table of Contents derivation', () => {
+  it('yields no TOC entries for an empty Merged Document', () => {
+    expect(buildToc('')).toEqual([])
+  })
+
+  it('extracts H1–H3 headings from the Merged Document with sequential jump ids', () => {
+    const markdown = ['# One', '## Two', '### Three', '#### Four', 'body'].join('\n')
+    expect(buildToc(markdown)).toEqual([
+      { id: 'section-0', level: 1, title: 'One' },
+      { id: 'section-1', level: 2, title: 'Two' },
+      { id: 'section-2', level: 3, title: 'Three' },
+    ])
+  })
+
+  it('includes Filename Heading titles from the joined Merged Document', () => {
+    const merged = makeDocument(
+      [source('intro.md', 'hello'), source('detail.md', '## Nested')],
+      'filename-heading',
+    )
+    expect(buildToc(merged)).toEqual([
+      { id: 'section-0', level: 1, title: 'intro' },
+      { id: 'section-1', level: 1, title: 'detail' },
+      { id: 'section-2', level: 2, title: 'Nested' },
+    ])
+  })
+
+  it('strips markdown emphasis markers from TOC titles', () => {
+    expect(buildToc('# **Bold** and *italic* and `code`')).toEqual([
+      { id: 'section-0', level: 1, title: 'Bold and italic and code' },
+    ])
   })
 })
