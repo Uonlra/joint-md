@@ -44,7 +44,9 @@ export function MarkdownPreview({
       ) : (
         <div>
           <FileOutput size={34} />
-          <p>合并后的文档会显示在这里</p>
+          <p>Merged Document 将显示在这里</p>
+          <p className="empty-hint">从左侧加入 Source File 开始</p>
+
         </div>
       )}
     </div>

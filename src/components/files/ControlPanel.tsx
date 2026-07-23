@@ -34,8 +34,8 @@ export function ControlPanel({
     <aside className="control-panel">
       <div className="panel-heading">
         <div>
-          <p>文件队列</p>
-          <h1>合并 Markdown</h1>
+          <p>File Queue</p>
+          <h1>源文件队列</h1>
         </div>
         {files.length > 0 && <span className="count">{files.length}</span>}
       </div>

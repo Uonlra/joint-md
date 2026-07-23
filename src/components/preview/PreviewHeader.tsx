@@ -1,4 +1,4 @@
-import { ListTree, Minus, PanelLeftClose, Plus, SunMedium } from 'lucide-react'
+import { ListTree, Minus, Plus, SunMedium } from 'lucide-react'
 
 type PreviewHeaderProps = {
   readerMode: boolean
@@ -27,17 +27,17 @@ export function PreviewHeader({
   onDecreaseFont,
   onIncreaseFont,
   onToggleSoftPaper,
-  onEnterReaderMode,
+  onEnterReaderMode: _onEnterReaderMode,
 }: PreviewHeaderProps) {
   return (
     <div className="preview-header">
       <div>
-        <p>{readerMode ? '阅读模式' : '实时预览'}</p>
+        <p>{readerMode ? 'Reader Mode' : 'Merged Document'}</p>
         <h2>{outputName || 'merged-document'}.md</h2>
       </div>
       <div className="preview-tools">
         <span>
-          {fileCount ? `${fileCount} 个文件 · ${markdownLength.toLocaleString()} 个字符` : '等待文件'}
+          {fileCount ? `${fileCount} files · ${markdownLength.toLocaleString()} chars` : '等待源文件'}
         </span>
         <button
           className="tool-button"
@@ -47,7 +47,7 @@ export function PreviewHeader({
           disabled={!tocCount}
           onClick={onToggleToc}
         >
-          <ListTree size={17} />
+          <ListTree size={16} />
         </button>
         <button
           className="tool-button"
@@ -57,9 +57,11 @@ export function PreviewHeader({
           disabled={fontSize <= 14}
           onClick={onDecreaseFont}
         >
-          <Minus size={17} />
+          <Minus size={16} />
         </button>
-        <span className="font-size">A</span>
+        <span className="font-size" aria-hidden="true">
+          A
+        </span>
         <button
           className="tool-button"
           type="button"
@@ -68,7 +70,7 @@ export function PreviewHeader({
           disabled={fontSize >= 20}
           onClick={onIncreaseFont}
         >
-          <Plus size={17} />
+          <Plus size={16} />
         </button>
         <button
           className={`tool-button ${softPaper ? 'selected' : ''}`}
@@ -77,19 +79,8 @@ export function PreviewHeader({
           aria-label="护眼纸张色"
           onClick={onToggleSoftPaper}
         >
-          <SunMedium size={17} />
+          <SunMedium size={16} />
         </button>
-        {!readerMode && (
-          <button
-            className="tool-button reader-icon"
-            type="button"
-            title="进入阅读模式"
-            aria-label="进入阅读模式"
-            onClick={onEnterReaderMode}
-          >
-            <PanelLeftClose size={17} />
-          </button>
-        )}
       </div>
     </div>
   )

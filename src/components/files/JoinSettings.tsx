@@ -1,4 +1,3 @@
-import { Settings2 } from 'lucide-react'
 import type { JoinMode } from '../../types'
 
 type JoinSettingsProps = {
@@ -16,12 +15,15 @@ export function JoinSettings({
 }: JoinSettingsProps) {
   return (
     <div className="settings">
-      <div className="settings-title">
-        <Settings2 size={17} />
-        导出与拼接
-      </div>
-      <label htmlFor="name">导出名</label>
-      <input id="name" value={outputName} onChange={(event) => onOutputNameChange(event.target.value)} />
+      <div className="settings-title">拼接与导出</div>
+      <label htmlFor="name">Export Name</label>
+      <input
+        id="name"
+        value={outputName}
+        onChange={(event) => onOutputNameChange(event.target.value)}
+        autoComplete="off"
+        spellCheck={false}
+      />
       <fieldset>
         <legend>Join Mode</legend>
         <label>
@@ -31,7 +33,7 @@ export function JoinSettings({
             checked={joinMode === 'plain'}
             onChange={() => onJoinModeChange('plain')}
           />
-          Plain（空行）
+          Plain — 空行分隔
         </label>
         <label>
           <input
@@ -40,7 +42,7 @@ export function JoinSettings({
             checked={joinMode === 'rule'}
             onChange={() => onJoinModeChange('rule')}
           />
-          Rule（分隔线）
+          Rule — 水平线分隔
         </label>
         <label>
           <input
@@ -49,7 +51,7 @@ export function JoinSettings({
             checked={joinMode === 'filename-heading'}
             onChange={() => onJoinModeChange('filename-heading')}
           />
-          Filename Heading（文件名标题）
+          Filename Heading — 文件名作标题
         </label>
       </fieldset>
     </div>
