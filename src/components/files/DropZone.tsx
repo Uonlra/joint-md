@@ -24,9 +24,9 @@ export function DropZone({ onAddFiles }: DropZoneProps) {
         void onAddFiles(event.dataTransfer.files)
       }}
     >
-      <FilePlus2 size={26} />
-      <strong>拖入 Markdown 文件</strong>
-      <span>支持一次性导入多个 .md / .markdown 文件</span>
+      <FilePlus2 size={24} />
+      <strong>拖入 .md 文件</strong>
+      <span>按顺序加入 File Queue · 支持多选</span>
       <button className="secondary-button" type="button" onClick={() => inputRef.current?.click()}>
         选择文件
       </button>

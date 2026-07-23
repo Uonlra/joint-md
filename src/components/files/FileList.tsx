@@ -8,11 +8,20 @@ type FileListProps = {
   onDropAt: (id: string) => void
   onMove: (from: number, to: number) => void
   onRemove: (id: string) => void
+  onSelect: (id: string) => void
 }
 
-export function FileList({ files, onDragStart, onDragEnd, onDropAt, onMove, onRemove }: FileListProps) {
+export function FileList({
+  files,
+  onDragStart,
+  onDragEnd,
+  onDropAt,
+  onMove,
+  onRemove,
+  onSelect,
+}: FileListProps) {
   if (files.length === 0) {
-    return <div className="empty-list">添加文件后，可通过拖动或箭头调整合并顺序。</div>
+    return <div className="empty-list">队列为空。加入 Source File 后可拖拽或用箭头调整顺序。</div>
   }
 
   return (
@@ -29,6 +38,7 @@ export function FileList({ files, onDragStart, onDragEnd, onDropAt, onMove, onRe
           onMoveUp={() => onMove(index, index - 1)}
           onMoveDown={() => onMove(index, index + 1)}
           onRemove={() => onRemove(file.id)}
+          onSelect={() => onSelect(file.id)}
         />
       ))}
     </>

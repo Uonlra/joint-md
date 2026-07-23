@@ -13,6 +13,7 @@ type ControlPanelProps = {
   onDropAt: (id: string) => void
   onMove: (from: number, to: number) => void
   onRemove: (id: string) => void
+  onSelectFile: (id: string) => void
   onOutputNameChange: (value: string) => void
   onJoinModeChange: (mode: JoinMode) => void
 }
@@ -27,6 +28,7 @@ export function ControlPanel({
   onDropAt,
   onMove,
   onRemove,
+  onSelectFile,
   onOutputNameChange,
   onJoinModeChange,
 }: ControlPanelProps) {
@@ -34,8 +36,8 @@ export function ControlPanel({
     <aside className="control-panel">
       <div className="panel-heading">
         <div>
-          <p>文件队列</p>
-          <h1>合并 Markdown</h1>
+          <p>File Queue</p>
+          <h1>源文件队列</h1>
         </div>
         {files.length > 0 && <span className="count">{files.length}</span>}
       </div>
@@ -48,6 +50,7 @@ export function ControlPanel({
           onDropAt={onDropAt}
           onMove={onMove}
           onRemove={onRemove}
+          onSelect={onSelectFile}
         />
       </div>
       <JoinSettings

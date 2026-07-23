@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI reference files
+.agents
+docs/*
+AGENTS.md
+CONTEXT.md

@@ -7,8 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
+
   "dependencies": {
     "lucide-react": "^0.468.0",
     "react": "^19.2.7",
@@ -25,6 +28,7 @@
     "oxlint": "^1.71.0",
     "typescript": "~6.0.2",
     "vite": "^8.1.1",
+    "vitest": "^4.1.10",
     "wait-on": "^9.0.10"
   }
 }

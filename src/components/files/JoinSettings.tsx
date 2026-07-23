@@ -1,4 +1,3 @@
-import { Settings2 } from 'lucide-react'
 import type { JoinMode } from '../../types'
 
 type JoinSettingsProps = {
@@ -16,14 +15,17 @@ export function JoinSettings({
 }: JoinSettingsProps) {
   return (
     <div className="settings">
-      <div className="settings-title">
-        <Settings2 size={17} />
-        合并设置
-      </div>
-      <label htmlFor="name">导出文件名</label>
-      <input id="name" value={outputName} onChange={(event) => onOutputNameChange(event.target.value)} />
+      <div className="settings-title">拼接与导出</div>
+      <label htmlFor="name">Export Name</label>
+      <input
+        id="name"
+        value={outputName}
+        onChange={(event) => onOutputNameChange(event.target.value)}
+        autoComplete="off"
+        spellCheck={false}
+      />
       <fieldset>
-        <legend>文件设置</legend>
+        <legend>Join Mode</legend>
         <label>
           <input
             type="radio"
@@ -31,25 +33,25 @@ export function JoinSettings({
             checked={joinMode === 'plain'}
             onChange={() => onJoinModeChange('plain')}
           />
-          留出空行
+          Plain — 空行分隔
         </label>
         <label>
           <input
             type="radio"
             name="join"
-            checked={joinMode === 'line'}
-            onChange={() => onJoinModeChange('line')}
+            checked={joinMode === 'rule'}
+            onChange={() => onJoinModeChange('rule')}
           />
-          插入分隔线
+          Rule — 水平线分隔
         </label>
         <label>
           <input
             type="radio"
             name="join"
-            checked={joinMode === 'heading'}
-            onChange={() => onJoinModeChange('heading')}
+            checked={joinMode === 'filename-heading'}
+            onChange={() => onJoinModeChange('filename-heading')}
           />
-          加上文件标题
+          Filename Heading — 文件名作标题
         </label>
       </fieldset>
     </div>

@@ -1,2 +1,91 @@
-:root { font-family: "Roobert PRO", "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; color: #1c1c1e; background: #f7f8fa; font-synthesis: none; text-rendering: optimizeLegibility; }
-* { box-sizing: border-box; } body { min-width: 320px; min-height: 100vh; margin: 0; } button, input { font: inherit; } button { cursor: pointer; } button:disabled { cursor: not-allowed; opacity: .48; }
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R5 V3
+ * macrostructure: Workbench · genre: modern-minimal · theme: utilitarian-ink
+ * audience: general · use: join Markdown · tone: utilitarian
+ * nav: app masthead · footer: export bar
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap');
+
+:root {
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #3d3d3d;
+  --color-muted: #6b6b6b;
+  --color-faint: #9a9a9a;
+  --color-line: #d8d8d4;
+  --color-line-strong: #1a1a1a;
+  --color-paper: #f4f3ef;
+  --color-paper-2: #ebeae4;
+  --color-surface: #fafaf7;
+  --color-white: #ffffff;
+  --color-accent: #1a1a1a;
+  --color-accent-soft: #e8e6df;
+  --color-focus: #2563eb;
+  --color-ok: #1f7a4c;
+  --color-danger: #a33b2d;
+  --color-warn-bg: #f0ebe0;
+  --color-warn-ink: #5c4a1f;
+  --color-soft-paper: #f7f1e4;
+  --color-soft-paper-2: #f0e9d8;
+  --color-soft-line: #e0d6c0;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --shadow-panel: 0 0 0 1px var(--color-line);
+  --shadow-float: 0 12px 32px -16px rgb(26 26 26 / 18%);
+  --ease: 120ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

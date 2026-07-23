@@ -1,23 +1,36 @@
 import type { JoinMode, SourceFile, TableOfContentsItem } from '../types'
 import { safeTitle } from './markdown'
 
-export const makeDocument = (files: SourceFile[], mode: JoinMode) =>
-  files
-    .map((file) => {
-      const content = file.content.trim()
-      return mode === 'heading'
-        ? `# ${file.name.replace(/\.(md|markdown)$/i, '')}\n\n${content}`
-        : content
-    })
-    .filter(Boolean)
-    .join(mode === 'line' ? '\n\n---\n\n' : '\n\n')
+export type DocumentSegment = {
+  id: string
+  body: string
+}
 
-export const documentHash = (value: string) => {
-  let hash = 0
-  for (let index = 0; index < value.length; index += 1) {
-    hash = (hash * 31 + value.charCodeAt(index)) | 0
-  }
-  return `joint-md-progress-${hash}`
+export type BuiltDocument = {
+  markdown: string
+  segments: DocumentSegment[]
+}
+
+export const sourceAnchorId = (sourceFileId: string) => `source-${sourceFileId}`
+
+const segmentBody = (file: SourceFile, mode: JoinMode) => {
+  const content = file.content.trim()
+  if (!content) return ''
+  return mode === 'filename-heading'
+    ? `# ${file.name.replace(/\.(md|markdown)$/i, '')}\n\n${content}`
+    : content
+}
+
+export const makeDocument = (files: SourceFile[], mode: JoinMode): BuiltDocument => {
+  const segments = files
+    .map((file) => ({ id: file.id, body: segmentBody(file, mode) }))
+    .filter((segment) => Boolean(segment.body))
+
+  const markdown = segments
+    .map((segment) => segment.body)
+    .join(mode === 'rule' ? '\n\n---\n\n' : '\n\n')
+
+  return { markdown, segments }
 }
 
 export const buildToc = (markdown: string): TableOfContentsItem[] =>
