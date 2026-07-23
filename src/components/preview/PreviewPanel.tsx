@@ -15,7 +15,6 @@ type PreviewPanelProps = {
   fontSize: number
   softPaper: boolean
   notice: string
-  progressKey: string
   previewRef: RefObject<HTMLDivElement | null>
   onToggleToc: () => void
   onCloseToc: () => void
@@ -26,6 +25,7 @@ type PreviewPanelProps = {
   onEnterReaderMode: () => void
   onExportMarkdown: () => void
   onPrintPdf: () => void
+  onPersistProgress: (scrollTop: number) => void
 }
 
 export function PreviewPanel({
@@ -38,7 +38,6 @@ export function PreviewPanel({
   fontSize,
   softPaper,
   notice,
-  progressKey,
   previewRef,
   onToggleToc,
   onCloseToc,
@@ -49,6 +48,7 @@ export function PreviewPanel({
   onEnterReaderMode,
   onExportMarkdown,
   onPrintPdf,
+  onPersistProgress,
 }: PreviewPanelProps) {
   return (
     <section className="preview-panel">
@@ -71,8 +71,8 @@ export function PreviewPanel({
         markdown={markdown}
         toc={toc}
         fontSize={fontSize}
-        progressKey={progressKey}
         previewRef={previewRef}
+        onPersistProgress={onPersistProgress}
       />
       <ExportBar
         notice={notice}

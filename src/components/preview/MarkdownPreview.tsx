@@ -9,16 +9,16 @@ type MarkdownPreviewProps = {
   markdown: string
   toc: TableOfContentsItem[]
   fontSize: number
-  progressKey: string
   previewRef: RefObject<HTMLDivElement | null>
+  onPersistProgress: (scrollTop: number) => void
 }
 
 export function MarkdownPreview({
   markdown,
   toc,
   fontSize,
-  progressKey,
   previewRef,
+  onPersistProgress,
 }: MarkdownPreviewProps) {
   const headingComponents = {
     h1: ({ children }: { children?: ReactNode }) => <h1 id={headingIdFor(toc, children)}>{children}</h1>,
@@ -27,7 +27,7 @@ export function MarkdownPreview({
   }
 
   const onScroll = (event: UIEvent<HTMLDivElement>) => {
-    localStorage.setItem(progressKey, String(event.currentTarget.scrollTop))
+    onPersistProgress(event.currentTarget.scrollTop)
   }
 
   return (
