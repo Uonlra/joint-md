@@ -13,6 +13,7 @@ type ControlPanelProps = {
   onDropAt: (id: string) => void
   onMove: (from: number, to: number) => void
   onRemove: (id: string) => void
+  onSelectFile: (id: string) => void
   onOutputNameChange: (value: string) => void
   onJoinModeChange: (mode: JoinMode) => void
 }
@@ -27,6 +28,7 @@ export function ControlPanel({
   onDropAt,
   onMove,
   onRemove,
+  onSelectFile,
   onOutputNameChange,
   onJoinModeChange,
 }: ControlPanelProps) {
@@ -48,6 +50,7 @@ export function ControlPanel({
           onDropAt={onDropAt}
           onMove={onMove}
           onRemove={onRemove}
+          onSelect={onSelectFile}
         />
       </div>
       <JoinSettings

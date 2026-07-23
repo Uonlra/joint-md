@@ -275,6 +275,24 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--color-ink);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.file-name:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.source-segment {
+  scroll-margin-top: 12px;
+}
+
+.source-gap {
+  height: 1.2em;
 }
 
 .row-actions {

@@ -10,10 +10,14 @@ const source = (name: string, content: string, id = name): SourceFile => ({
 
 describe('Workbench Merged Document derivation', () => {
   it('updates the Merged Document when File Queue or Join Mode changes', () => {
-    const queue = [source('a.md', '# Alpha'), source('b.md', '## Beta')]
+    const queue = [source('a.md', '# Alpha', 'a'), source('b.md', '## Beta', 'b')]
 
     const plain = deriveMergedDocument(queue, 'plain')
     expect(plain.markdown).toBe('# Alpha\n\n## Beta')
+    expect(plain.segments).toEqual([
+      { id: 'a', body: '# Alpha' },
+      { id: 'b', body: '## Beta' },
+    ])
     expect(plain.toc).toEqual([
       { id: 'section-0', level: 1, title: 'Alpha' },
       { id: 'section-1', level: 2, title: 'Beta' },

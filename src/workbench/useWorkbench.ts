@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { JoinMode, SourceFile } from '../types'
+import { sourceAnchorId } from '../utils/document'
 import { acceptSourceFiles, isAcceptedSourceFileName } from '../utils/sourceFiles'
 import { deriveMergedDocument } from './deriveMergedDocument'
 import { exportMarkdown as runExportMarkdown, printToPdf as runPrintToPdf } from './exportDocument'
@@ -78,6 +79,10 @@ export function useWorkbench() {
     setTocOpen(false)
   }
 
+  const scrollToSourceFile = (id: string) => {
+    document.getElementById(sourceAnchorId(id))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   const exportMarkdown = () => {
     const { notice: nextNotice } = runExportMarkdown(derived.markdown, exportName)
     if (nextNotice) setNotice(nextNotice)
@@ -98,6 +103,7 @@ export function useWorkbench() {
     onDropAt: dropAt,
     onMove: moveFile,
     onRemove: removeFile,
+    onSelectFile: scrollToSourceFile,
     onExportNameChange: setExportName,
     onJoinModeChange: setJoinMode,
   }
@@ -107,6 +113,8 @@ export function useWorkbench() {
     exportName,
     fileCount: files.length,
     markdown: derived.markdown,
+    segments: derived.segments,
+    joinModeRule: joinMode === 'rule',
     toc: derived.toc,
     tocOpen,
     fontSize,

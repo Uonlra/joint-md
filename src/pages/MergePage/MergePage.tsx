@@ -21,6 +21,7 @@ export default function MergePage() {
           onDropAt={queue.onDropAt}
           onMove={queue.onMove}
           onRemove={queue.onRemove}
+          onSelectFile={queue.onSelectFile}
           onOutputNameChange={queue.onExportNameChange}
           onJoinModeChange={queue.onJoinModeChange}
         />
@@ -29,6 +30,8 @@ export default function MergePage() {
           outputName={preview.exportName}
           fileCount={preview.fileCount}
           markdown={preview.markdown}
+          segments={preview.segments}
+          joinModeRule={preview.joinModeRule}
           toc={preview.toc}
           tocOpen={preview.tocOpen}
           fontSize={preview.fontSize}

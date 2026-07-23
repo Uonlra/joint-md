@@ -11,6 +11,7 @@ type FileRowProps = {
   onMoveUp: () => void
   onMoveDown: () => void
   onRemove: () => void
+  onSelect: () => void
 }
 
 export function FileRow({
@@ -23,6 +24,7 @@ export function FileRow({
   onMoveUp,
   onMoveDown,
   onRemove,
+  onSelect,
 }: FileRowProps) {
   return (
     <article
@@ -35,9 +37,14 @@ export function FileRow({
     >
       <GripVertical className="drag-handle" size={17} />
       <span className="file-index">{String(index + 1).padStart(2, '0')}</span>
-      <span className="file-name" title={file.name}>
+      <button
+        type="button"
+        className="file-name"
+        title={`定位到 ${file.name}`}
+        onClick={onSelect}
+      >
         {file.name}
-      </span>
+      </button>
       <div className="row-actions">
         <button
           className="icon-button"
