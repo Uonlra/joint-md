@@ -295,6 +295,43 @@
   height: 1.2em;
 }
 
+.epub-segment .epub-body {
+  line-height: 1.7;
+}
+
+.epub-segment .epub-body :is(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table) {
+  margin: 0 0 1em;
+}
+
+.epub-segment .epub-body img,
+.epub-segment .epub-body svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.epub-segment .epub-body figure {
+  margin: 0 0 1.2em;
+  text-align: center;
+}
+
+.epub-segment .epub-body pre {
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.epub-segment .epub-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.epub-segment .epub-body th,
+.epub-segment .epub-body td {
+  border: 1px solid var(--color-line);
+  padding: 6px 8px;
+}
+
 .row-actions {
   display: flex;
   gap: 2px;

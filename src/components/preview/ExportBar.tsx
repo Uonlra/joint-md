@@ -2,21 +2,40 @@ import { Download, Printer } from 'lucide-react'
 
 type ExportBarProps = {
   notice: string
+  importStatus?: 'idle' | 'loading' | 'error' | 'success'
   hasMarkdown: boolean
+  canPrint?: boolean
+  exportDisabledReason?: string
   onExportMarkdown: () => void
   onPrintPdf: () => void
 }
 
-export function ExportBar({ notice, hasMarkdown, onExportMarkdown, onPrintPdf }: ExportBarProps) {
+export function ExportBar({
+  notice,
+  importStatus,
+  hasMarkdown,
+  canPrint = hasMarkdown,
+  exportDisabledReason,
+  onExportMarkdown,
+  onPrintPdf,
+}: ExportBarProps) {
   return (
     <footer className="export-bar">
-      <span role="status">{notice || '导出不会上传文件'}</span>
+      <span role="status">
+        {notice || (importStatus === 'loading' ? '正在导入文件...' : '导出不会上传文件')}
+      </span>
       <div>
-        <button className="secondary-button" type="button" disabled={!hasMarkdown} onClick={onExportMarkdown}>
+        <button
+          className="secondary-button"
+          type="button"
+          disabled={!hasMarkdown}
+          title={exportDisabledReason}
+          onClick={onExportMarkdown}
+        >
           <Download size={16} />
           Export Markdown
         </button>
-        <button className="primary-button" type="button" disabled={!hasMarkdown} onClick={onPrintPdf}>
+        <button className="primary-button" type="button" disabled={!canPrint} onClick={onPrintPdf}>
           <Printer size={16} />
           Print to PDF
         </button>

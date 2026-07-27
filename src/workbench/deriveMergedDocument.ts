@@ -13,7 +13,8 @@ export const deriveMergedDocument = (
   files: SourceFile[],
   joinMode: JoinMode,
 ): DerivedMergedDocument => {
-  const { markdown, segments } = makeDocument(files, joinMode)
+  const markdownFiles = files.filter((file) => file.kind !== 'epub' && !/\.epub$/i.test(file.name))
+  const { markdown, segments } = makeDocument(markdownFiles, joinMode)
   return {
     markdown,
     segments,

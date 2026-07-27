@@ -13,6 +13,7 @@ export default function MergePage() {
       <section className="workspace">
         <ControlPanel
           files={queue.files}
+          mode={queue.mode}
           outputName={queue.exportName}
           joinMode={queue.joinMode}
           onAddFiles={queue.onAddFiles}
@@ -27,16 +28,20 @@ export default function MergePage() {
         />
         <PreviewPanel
           readerMode={preview.readerMode}
+          mode={preview.mode}
           outputName={preview.exportName}
           fileCount={preview.fileCount}
+          contentLength={preview.contentLength}
           markdown={preview.markdown}
           segments={preview.segments}
+          epubSections={preview.epubSections}
           joinModeRule={preview.joinModeRule}
           toc={preview.toc}
           tocOpen={preview.tocOpen}
           fontSize={preview.fontSize}
           softPaper={preview.softPaper}
           notice={preview.notice}
+          importStatus={preview.importStatus}
           previewRef={preview.previewRef}
           onToggleToc={preview.onToggleToc}
           onCloseToc={preview.onCloseToc}

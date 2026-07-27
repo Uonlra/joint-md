@@ -1,6 +1,7 @@
 import type { RefObject } from 'react'
-import type { TableOfContentsItem } from '../../types'
+import type { TableOfContentsItem, WorkbenchMode } from '../../types'
 import type { DocumentSegment } from '../../utils/document'
+import type { EpubPreviewSection } from '../../workbench/deriveEpubDocument'
 import { ExportBar } from './ExportBar'
 import { MarkdownPreview } from './MarkdownPreview'
 import { PreviewHeader } from './PreviewHeader'
@@ -8,16 +9,20 @@ import { TocPanel } from './TocPanel'
 
 type PreviewPanelProps = {
   readerMode: boolean
+  mode: WorkbenchMode
   outputName: string
   fileCount: number
+  contentLength: number
   markdown: string
   segments: DocumentSegment[]
+  epubSections?: EpubPreviewSection[]
   joinModeRule: boolean
   toc: TableOfContentsItem[]
   tocOpen: boolean
   fontSize: number
   softPaper: boolean
   notice: string
+  importStatus?: 'idle' | 'loading' | 'error' | 'success'
   previewRef: RefObject<HTMLDivElement | null>
   onToggleToc: () => void
   onCloseToc: () => void
@@ -33,16 +38,20 @@ type PreviewPanelProps = {
 
 export function PreviewPanel({
   readerMode,
+  mode,
   outputName,
   fileCount,
+  contentLength,
   markdown,
   segments,
+  epubSections,
   joinModeRule,
   toc,
   tocOpen,
   fontSize,
   softPaper,
   notice,
+  importStatus,
   previewRef,
   onToggleToc,
   onCloseToc,
@@ -59,9 +68,10 @@ export function PreviewPanel({
     <section className="preview-panel">
       <PreviewHeader
         readerMode={readerMode}
+        mode={mode}
         outputName={outputName}
         fileCount={fileCount}
-        markdownLength={markdown.length}
+        contentLength={contentLength}
         tocCount={toc.length}
         fontSize={fontSize}
         softPaper={softPaper}
@@ -71,10 +81,18 @@ export function PreviewPanel({
         onToggleSoftPaper={onToggleSoftPaper}
         onEnterReaderMode={onEnterReaderMode}
       />
-      {tocOpen && <TocPanel toc={toc} onClose={onCloseToc} onSelect={onSelectSection} />}
+      {tocOpen && (
+        <TocPanel
+          toc={toc}
+          label={mode === 'epub' ? 'EPUB 目录' : '文章目录'}
+          onClose={onCloseToc}
+          onSelect={onSelectSection}
+        />
+      )}
       <MarkdownPreview
         markdown={markdown}
         segments={segments}
+        epubSections={epubSections}
         joinModeRule={joinModeRule}
         toc={toc}
         fontSize={fontSize}
@@ -83,7 +101,10 @@ export function PreviewPanel({
       />
       <ExportBar
         notice={notice}
-        hasMarkdown={Boolean(markdown)}
+        importStatus={importStatus}
+        hasMarkdown={mode === 'markdown' && Boolean(markdown)}
+        canPrint={mode === 'markdown' ? Boolean(markdown) : Boolean(epubSections?.length)}
+        exportDisabledReason={mode === 'epub' ? 'EPUB 模式不支持导出 Markdown' : undefined}
         onExportMarkdown={onExportMarkdown}
         onPrintPdf={onPrintPdf}
       />

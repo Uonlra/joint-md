@@ -8,14 +8,20 @@ const browserStore: ProgressStore = {
   setItem: (key, value) => localStorage.setItem(key, value),
 }
 
-/** Browser Memory key for Reading Progress of one Merged Document fingerprint. */
-export const keyFromMergedDocument = (markdown: string) => {
+const fingerprint = (value: string) => {
   let hash = 0
-  for (let index = 0; index < markdown.length; index += 1) {
-    hash = (hash * 31 + markdown.charCodeAt(index)) | 0
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) | 0
   }
-  return `joint-md-progress-${hash}`
+  return hash
 }
+
+/** Browser Memory key for Reading Progress of one Merged Document fingerprint. */
+export const keyFromMergedDocument = (markdown: string) => `joint-md-progress-${fingerprint(markdown)}`
+
+/** Browser Memory key for Reading Progress of one EPUB document fingerprint. */
+export const keyFromEpubDocument = (epubFingerprint: string) =>
+  `joint-md-epub-progress-${fingerprint(epubFingerprint)}`
 
 export const persistReadingProgress = (
   progressKey: string,
