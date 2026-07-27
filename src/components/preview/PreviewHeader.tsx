@@ -1,10 +1,12 @@
 import { ListTree, Minus, Plus, SunMedium } from 'lucide-react'
+import type { WorkbenchMode } from '../../types'
 
 type PreviewHeaderProps = {
   readerMode: boolean
+  mode: WorkbenchMode
   outputName: string
   fileCount: number
-  markdownLength: number
+  contentLength: number
   tocCount: number
   fontSize: number
   softPaper: boolean
@@ -17,9 +19,10 @@ type PreviewHeaderProps = {
 
 export function PreviewHeader({
   readerMode,
+  mode,
   outputName,
   fileCount,
-  markdownLength,
+  contentLength,
   tocCount,
   fontSize,
   softPaper,
@@ -29,15 +32,24 @@ export function PreviewHeader({
   onToggleSoftPaper,
   onEnterReaderMode: _onEnterReaderMode,
 }: PreviewHeaderProps) {
+  const modeLabel =
+    mode === 'epub' ? (readerMode ? 'EPUB Reader' : 'EPUB Document') : readerMode ? 'Reader Mode' : 'Merged Document'
+  const titleSuffix = mode === 'epub' ? '.epub' : '.md'
+
   return (
     <div className="preview-header">
       <div>
-        <p>{readerMode ? 'Reader Mode' : 'Merged Document'}</p>
-        <h2>{outputName || 'merged-document'}.md</h2>
+        <p>{modeLabel}</p>
+        <h2>
+          {outputName || (mode === 'epub' ? 'epub-document' : 'merged-document')}
+          {titleSuffix}
+        </h2>
       </div>
       <div className="preview-tools">
         <span>
-          {fileCount ? `${fileCount} files · ${markdownLength.toLocaleString()} chars` : '等待源文件'}
+          {fileCount
+            ? `${fileCount} files · ${contentLength.toLocaleString()} chars${mode === 'epub' ? ' · EPUB' : ''}`
+            : '等待源文件'}
         </span>
         <button
           className="tool-button"

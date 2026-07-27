@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  keyFromEpubDocument,
   keyFromMergedDocument,
   persistReadingProgress,
   restoreReadingProgress,
@@ -46,5 +47,12 @@ describe('Reading Progress', () => {
     const element = { scrollTop: 12 }
     restoreReadingProgress(keyFromMergedDocument('empty'), element as HTMLElement, store)
     expect(element.scrollTop).toBe(12)
+  })
+
+  it('uses a separate progress key namespace for EPUB documents', () => {
+    const markdownKey = keyFromMergedDocument('same-content')
+    const epubKey = keyFromEpubDocument('same-content')
+    expect(epubKey).toMatch(/^joint-md-epub-progress-/)
+    expect(epubKey).not.toBe(markdownKey)
   })
 })

@@ -32,4 +32,19 @@ describe('Workbench Merged Document derivation', () => {
     expect(reordered.markdown).toBe('## Beta\n\n# Alpha')
     expect(reordered.progressKey).not.toBe(plain.progressKey)
   })
+
+  it('ignores EPUB source files when deriving the Markdown Merged Document', () => {
+    const mixed = [
+      source('a.md', '# Alpha', 'a'),
+      {
+        id: 'book',
+        name: 'book.epub',
+        kind: 'epub' as const,
+        content: '<h1>Ignore</h1>',
+      },
+    ]
+    const derived = deriveMergedDocument(mixed, 'plain')
+    expect(derived.markdown).toBe('# Alpha')
+    expect(derived.segments).toEqual([{ id: 'a', body: '# Alpha' }])
+  })
 })

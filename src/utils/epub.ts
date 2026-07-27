@@ -332,10 +332,18 @@ export const parseEpubDocument = async (
       assets: assetCache.size,
     })
 
-    const toc =
+    const navToc =
       (navPath && parseNav(readZipText(files, resolvePath(opfBase, navPath)))) ||
       (ncxPath && parseNcx(readZipText(files, resolvePath(opfBase, ncxPath)))) ||
-      sections.map((section) => ({ id: section.id, level: 1, title: section.title }))
+      []
+
+    const toc =
+      navToc.length > 0
+        ? navToc.map((item, index) => ({
+            ...item,
+            id: sections[Math.min(index, sections.length - 1)]?.id ?? item.id,
+          }))
+        : sections.map((section) => ({ id: section.id, level: 1, title: section.title }))
 
     return { title, sections, toc }
   } catch (error) {

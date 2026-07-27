@@ -37,9 +37,13 @@ export const kindFromFileName = (name: string): DocumentKind | null => {
   return null
 }
 
-export const kindFromQueue = (files: Array<{ name: string }>): DocumentKind | null => {
+export const kindFromQueue = (
+  files: Array<{ name: string; kind?: DocumentKind }>,
+): DocumentKind | null => {
   const kinds = new Set(
-    files.map((file) => kindFromFileName(file.name)).filter((kind): kind is DocumentKind => Boolean(kind)),
+    files
+      .map((file) => file.kind ?? kindFromFileName(file.name))
+      .filter((kind): kind is DocumentKind => Boolean(kind)),
   )
   if (kinds.size === 0) return null
   if (kinds.size > 1) return null

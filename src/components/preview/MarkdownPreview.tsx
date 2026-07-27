@@ -5,6 +5,7 @@ import { FileOutput } from 'lucide-react'
 import type { TableOfContentsItem } from '../../types'
 import { sourceAnchorId, type DocumentSegment } from '../../utils/document'
 import { headingIdFor } from '../../utils/markdown'
+import type { EpubPreviewSection } from '../../workbench/deriveEpubDocument'
 
 type MarkdownPreviewProps = {
   markdown: string
@@ -12,7 +13,7 @@ type MarkdownPreviewProps = {
   joinModeRule: boolean
   toc: TableOfContentsItem[]
   fontSize: number
-  epubHtml?: string[]
+  epubSections?: EpubPreviewSection[]
   previewRef: RefObject<HTMLDivElement | null>
   onPersistProgress: (scrollTop: number) => void
 }
@@ -23,7 +24,7 @@ export function MarkdownPreview({
   joinModeRule,
   toc,
   fontSize,
-  epubHtml,
+  epubSections,
   previewRef,
   onPersistProgress,
 }: MarkdownPreviewProps) {
@@ -37,24 +38,23 @@ export function MarkdownPreview({
     onPersistProgress(event.currentTarget.scrollTop)
   }
 
+  const hasEpub = Boolean(epubSections?.length)
+  const hasMarkdown = Boolean(markdown)
+
   return (
     <div
       ref={previewRef}
-      className={`preview-content ${epubHtml?.length || markdown ? '' : 'is-empty'}`}
+      className={`preview-content ${hasEpub || hasMarkdown ? '' : 'is-empty'}`}
       style={{ fontSize: `${fontSize}px` }}
       onScroll={onScroll}
     >
-      {epubHtml?.length ? (
-        epubHtml.map((chapterHtml, index) => (
-          <section
-            key={`epub-${index}`}
-            className="source-segment epub-segment"
-            id={sourceAnchorId(`epub-${index}`)}
-          >
-            <article className="epub-body" dangerouslySetInnerHTML={{ __html: chapterHtml }} />
+      {hasEpub ? (
+        epubSections!.map((section) => (
+          <section key={section.id} className="source-segment epub-segment" id={section.id}>
+            <article className="epub-body" dangerouslySetInnerHTML={{ __html: section.html }} />
           </section>
         ))
-      ) : markdown ? (
+      ) : hasMarkdown ? (
         segments.map((segment, index) => (
           <div key={segment.id}>
             {index > 0 && joinModeRule ? <hr /> : null}

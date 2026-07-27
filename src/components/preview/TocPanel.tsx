@@ -3,15 +3,16 @@ import type { TableOfContentsItem } from '../../types'
 
 type TocPanelProps = {
   toc: TableOfContentsItem[]
+  label?: string
   onClose: () => void
   onSelect: (id: string) => void
 }
 
-export function TocPanel({ toc, onClose, onSelect }: TocPanelProps) {
+export function TocPanel({ toc, label = '文章目录', onClose, onSelect }: TocPanelProps) {
   return (
-    <nav className="toc-panel" aria-label="文章目录">
+    <nav className="toc-panel" aria-label={label}>
       <div>
-        <strong>目录</strong>
+        <strong>{label}</strong>
         <button className="tool-button" type="button" title="关闭目录" aria-label="关闭目录" onClick={onClose}>
           <X size={16} />
         </button>

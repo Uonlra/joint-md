@@ -1,10 +1,11 @@
-import type { JoinMode, SourceFile } from '../../types'
+import type { JoinMode, SourceFile, WorkbenchMode } from '../../types'
 import { DropZone } from './DropZone'
 import { FileList } from './FileList'
 import { JoinSettings } from './JoinSettings'
 
 type ControlPanelProps = {
   files: SourceFile[]
+  mode: WorkbenchMode
   outputName: string
   joinMode: JoinMode
   onAddFiles: (files: FileList | File[]) => void | Promise<void>
@@ -20,6 +21,7 @@ type ControlPanelProps = {
 
 export function ControlPanel({
   files,
+  mode,
   outputName,
   joinMode,
   onAddFiles,
@@ -36,8 +38,8 @@ export function ControlPanel({
     <aside className="control-panel">
       <div className="panel-heading">
         <div>
-          <p>File Queue</p>
-          <h1>源文件队列</h1>
+          <p>{mode === 'epub' ? 'EPUB Queue' : 'File Queue'}</p>
+          <h1>{mode === 'epub' ? 'EPUB 阅读队列' : '源文件队列'}</h1>
         </div>
         {files.length > 0 && <span className="count">{files.length}</span>}
       </div>
@@ -53,12 +55,19 @@ export function ControlPanel({
           onSelect={onSelectFile}
         />
       </div>
-      <JoinSettings
-        outputName={outputName}
-        joinMode={joinMode}
-        onOutputNameChange={onOutputNameChange}
-        onJoinModeChange={onJoinModeChange}
-      />
+      {mode !== 'epub' ? (
+        <JoinSettings
+          outputName={outputName}
+          joinMode={joinMode}
+          onOutputNameChange={onOutputNameChange}
+          onJoinModeChange={onJoinModeChange}
+        />
+      ) : (
+        <div className="settings">
+          <div className="settings-title">EPUB 阅读模式</div>
+          <p className="empty-list">目录与阅读进度按 EPUB 章节独立管理，不参与 Markdown 合并规则。</p>
+        </div>
+      )}
     </aside>
   )
 }
