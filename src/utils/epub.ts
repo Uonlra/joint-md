@@ -224,8 +224,6 @@ const ensureFragmentTargets = (html: string, sectionId: string, fragments: strin
   return next
 }
 
-export const resolveEpubTocTargetId = (tocId: string) => tocId
-
 const extractBodyText = (html: string) => {
   const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
   return stripTags(withoutScripts)

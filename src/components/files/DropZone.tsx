@@ -26,8 +26,9 @@ export function DropZone({ onAddFiles }: DropZoneProps) {
       }}
     >
       <FilePlus2 size={24} />
-      <strong>拖入 .md 或 .epub 文件</strong>
-      <span>队列与单次导入都只能是一种格式；Markdown 5 MB / EPUB 50 MB；校验失败会弹窗提示</span>
+      <span>拖入 .md 或 .epub 文件</span>
+      <span>导入内容都只能是相同格式</span>
+      <span>Markdown 5 MB / EPUB 50 MB</span>
       <label className="secondary-button" htmlFor={inputId} role="button" tabIndex={0}>
         选择文件
       </label>
