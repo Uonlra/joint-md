@@ -8,6 +8,7 @@ type PreviewHeaderProps = {
   fileCount: number
   contentLength: number
   tocCount: number
+  tocEnabled?: boolean
   fontSize: number
   softPaper: boolean
   onToggleToc: () => void
@@ -24,6 +25,7 @@ export function PreviewHeader({
   fileCount,
   contentLength,
   tocCount,
+  tocEnabled = true,
   fontSize,
   softPaper,
   onToggleToc,
@@ -35,6 +37,8 @@ export function PreviewHeader({
   const modeLabel =
     mode === 'epub' ? (readerMode ? 'EPUB Reader' : 'EPUB Document') : readerMode ? 'Reader Mode' : 'Merged Document'
   const titleSuffix = mode === 'epub' ? '.epub' : '.md'
+  const tocAvailable = tocEnabled && tocCount > 0
+  const tocTitle = tocEnabled ? '目录' : 'EPUB 目录暂未开放'
 
   return (
     <div className="preview-header">
@@ -52,12 +56,16 @@ export function PreviewHeader({
             : '等待源文件'}
         </span>
         <button
-          className="tool-button"
+          className={`tool-button toc-button ${tocEnabled ? '' : 'toc-button-disabled'}`.trim()}
           type="button"
-          title="目录"
-          aria-label="目录"
-          disabled={!tocCount}
-          onClick={onToggleToc}
+          title={tocTitle}
+          aria-label={tocTitle}
+          aria-disabled={!tocAvailable}
+          disabled={!tocAvailable}
+          onClick={() => {
+            if (!tocAvailable) return
+            onToggleToc()
+          }}
         >
           <ListTree size={16} />
         </button>

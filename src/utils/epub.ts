@@ -6,12 +6,20 @@ export type EpubSection = {
   title: string
   content: string
   html: string
+  /** Package-relative path of the spine chapter file (no hash). */
+  path: string
+}
+
+export type EpubTocEntry = TableOfContentsItem & {
+  href?: string
+  path?: string
+  fragment?: string
 }
 
 export type ParsedEpubDocument = {
   title: string
   sections: EpubSection[]
-  toc: TableOfContentsItem[]
+  toc: EpubTocEntry[]
 }
 
 export type EpubExcerpt = {
@@ -126,27 +134,97 @@ const parseSpine = (opf: string) =>
     })
     .filter(Boolean)
 
-const parseNav = (html: string) => {
-  const navMatch = html.match(/<nav[^>]*epub:type=["']toc["'][^>]*>([\s\S]*?)<\/nav>/i)
-  if (!navMatch) return []
-
-  return Array.from(navMatch[1].matchAll(/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)).map(
-    (match, index) => ({
-      id: `epub-toc-${index}`,
-      level: 1,
-      title: stripTags(match[2]),
-    }),
-  )
+const splitHref = (href: string) => {
+  const hashIndex = href.indexOf('#')
+  if (hashIndex < 0) return { pathPart: href.trim(), fragment: '' }
+  return {
+    pathPart: href.slice(0, hashIndex).trim(),
+    fragment: href.slice(hashIndex + 1).trim(),
+  }
 }
 
-const parseNcx = (xml: string) =>
-  Array.from(xml.matchAll(/<navPoint[\s\S]*?<text>([\s\S]*?)<\/text>[\s\S]*?<\/navPoint>/gi)).map(
-    (match, index) => ({
-      id: `epub-toc-${index}`,
-      level: 1,
-      title: stripTags(match[1]),
-    }),
-  )
+const basename = (path: string) => {
+  const parts = normalizeZipPath(path).split('/')
+  return parts[parts.length - 1] || path
+}
+
+type RawTocLink = {
+  rawHref: string
+  title: string
+  level: number
+}
+
+const parseNav = (html: string): RawTocLink[] => {
+  const navMatch =
+    html.match(/<nav[^>]*epub:type=["']toc["'][^>]*>([\s\S]*?)<\/nav>/i) ||
+    html.match(/<nav[^>]*role=["']doc-toc["'][^>]*>([\s\S]*?)<\/nav>/i)
+  if (!navMatch) return []
+
+  return Array.from(navMatch[1].matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)).flatMap((match) => {
+    const attributes = parseAttributes(match[1])
+    if (!attributes.href) return []
+    return [
+      {
+        rawHref: attributes.href,
+        title: stripTags(match[2]),
+        level: 1,
+      },
+    ]
+  })
+}
+
+const parseNcx = (xml: string): RawTocLink[] =>
+  Array.from(
+    xml.matchAll(
+      /<navPoint\b[\s\S]*?<text>([\s\S]*?)<\/text>[\s\S]*?src=["']([^"']+)["'][\s\S]*?<\/navPoint>/gi,
+    ),
+  ).map((match) => ({
+    rawHref: match[2],
+    title: stripTags(match[1]),
+    level: 1,
+  }))
+
+const findSectionForHref = (
+  sections: EpubSection[],
+  hrefBasePath: string,
+  rawHref: string,
+): EpubSection | undefined => {
+  const { pathPart, fragment } = splitHref(rawHref)
+  if (!pathPart && fragment) {
+    return sections.find((section) => section.html.includes(`id="${fragment}"`) || section.html.includes(`id='${fragment}'`))
+  }
+  const resolved = pathPart ? resolvePath(hrefBasePath, pathPart) : ''
+  const byExact = sections.find((section) => normalizeZipPath(section.path).toLowerCase() === normalizeZipPath(resolved).toLowerCase())
+  if (byExact) return byExact
+  const targetBase = basename(resolved).toLowerCase()
+  return sections.find((section) => basename(section.path).toLowerCase() === targetBase)
+}
+
+const fragmentDomId = (sectionId: string, fragment: string) =>
+  `${sectionId}__frag__${fragment.replace(/[^A-Za-z0-9\-_.:]/g, '_')}`
+
+/** Ensure in-document fragment targets exist as stable ids for TOC jumps. */
+const ensureFragmentTargets = (html: string, sectionId: string, fragments: string[]) => {
+  let next = html
+  for (const fragment of fragments) {
+    if (!fragment) continue
+    const targetId = fragmentDomId(sectionId, fragment)
+    const idPattern = new RegExp(`\\bid=(['"])${fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\1`, 'i')
+    if (idPattern.test(next)) {
+      next = next.replace(idPattern, `id=$1${targetId}$1`)
+      continue
+    }
+    const namePattern = new RegExp(`\\bname=(['"])${fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\1`, 'i')
+    if (namePattern.test(next)) {
+      next = next.replace(namePattern, `id=$1${targetId}$1`)
+      continue
+    }
+    next = `<span id="${targetId}" data-epub-fragment="${fragment}"></span>${next}`
+  }
+  return next
+}
+
+export const resolveEpubTocTargetId = (tocId: string) => tocId
 
 const extractBodyText = (html: string) => {
   const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
@@ -319,6 +397,7 @@ export const parseEpubDocument = async (
           title: chapterTitle || `Section ${index + 1}`,
           content: extractBodyText(chapterHtml),
           html: extractBodyHtml(chapterHtml, chapterPath, files, assetCache),
+          path: chapterPath,
         }
       })
       .filter((section): section is EpubSection => Boolean(section))
@@ -332,19 +411,57 @@ export const parseEpubDocument = async (
       assets: assetCache.size,
     })
 
-    const navToc =
-      (navPath && parseNav(readZipText(files, resolvePath(opfBase, navPath)))) ||
-      (ncxPath && parseNcx(readZipText(files, resolvePath(opfBase, ncxPath)))) ||
+    const resolvedNavPath = navPath ? resolvePath(opfBase, navPath) : ''
+    const resolvedNcxPath = ncxPath ? resolvePath(opfBase, ncxPath) : ''
+    const rawLinks =
+      (resolvedNavPath && parseNav(readZipText(files, resolvedNavPath))) ||
+      (resolvedNcxPath && parseNcx(readZipText(files, resolvedNcxPath))) ||
       []
+    const hrefBasePath = resolvedNavPath || resolvedNcxPath || opfBase
 
-    const toc =
-      navToc.length > 0
-        ? navToc.map((item, index) => ({
-            ...item,
-            id: sections[Math.min(index, sections.length - 1)]?.id ?? item.id,
+    const fragmentsBySection = new Map<string, string[]>()
+    const toc: EpubTocEntry[] =
+      rawLinks.length > 0
+        ? rawLinks.map((link, index) => {
+            const { pathPart, fragment } = splitHref(link.rawHref)
+            const section =
+              findSectionForHref(sections, hrefBasePath, link.rawHref) ??
+              sections[Math.min(index, sections.length - 1)]
+            const path = pathPart ? resolvePath(hrefBasePath, pathPart) : section?.path
+            const targetId =
+              section && fragment
+                ? fragmentDomId(section.id, fragment)
+                : section?.id ?? `epub-toc-${index}`
+            if (section && fragment) {
+              const list = fragmentsBySection.get(section.id) ?? []
+              list.push(fragment)
+              fragmentsBySection.set(section.id, list)
+            }
+            return {
+              id: targetId,
+              level: link.level,
+              title: link.title || section?.title || `Section ${index + 1}`,
+              href: link.rawHref,
+              path,
+              fragment: fragment || undefined,
+            }
+          })
+        : sections.map((section) => ({
+            id: section.id,
+            level: 1,
+            title: section.title,
+            path: section.path,
           }))
-        : sections.map((section) => ({ id: section.id, level: 1, title: section.title }))
 
+    for (const section of sections) {
+      const fragments = fragmentsBySection.get(section.id)
+      if (fragments?.length) {
+        section.html = ensureFragmentTargets(section.html, section.id, fragments)
+        section.id = section.id
+      }
+    }
+
+    // Re-bind section DOM ids later in workbench; keep logical ids stable for matching.
     return { title, sections, toc }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown EPUB parse error'

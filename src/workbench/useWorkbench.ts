@@ -69,6 +69,10 @@ export function useWorkbench() {
     [progressKey],
   )
 
+  useEffect(() => {
+    if (mode === 'epub') setTocOpen(false)
+  }, [mode])
+
   const failImport = (message: string) => {
     setImportStatus('error')
     setNotice(message)
@@ -118,15 +122,36 @@ export function useWorkbench() {
             epubLogger.log('dispatch epub file', { name: file.name, size: file.size, type: file.type })
             const document = await parseEpubDocument(file, epubLogger)
             const sourceId = crypto.randomUUID()
-            const sections = document.sections.map((section, index) => ({
-              id: epubSectionAnchorId(sourceId, index),
-              title: section.title,
-              html: section.html,
-            }))
-            const toc = document.toc.map((item, index) => ({
-              ...item,
-              id: sections[Math.min(index, sections.length - 1)]?.id ?? item.id,
-            }))
+            const idMap = new Map<string, string>()
+            const sections = document.sections.map((section, index) => {
+              const stableId = epubSectionAnchorId(sourceId, index)
+              idMap.set(section.id, stableId)
+              const html = section.html.split(section.id).join(stableId)
+              return {
+                id: stableId,
+                title: section.title,
+                html,
+                path: section.path,
+              }
+            })
+            const toc = document.toc.map((item) => {
+              let id = item.id
+              for (const [from, to] of idMap) {
+                if (id === from || id.startsWith(`${from}__frag__`)) {
+                  id = id.split(from).join(to)
+                  break
+                }
+              }
+              if (!sections.some((section) => section.id === id || id.startsWith(`${section.id}__frag__`))) {
+                const byPath = sections.find((section) => section.path && item.path && section.path === item.path)
+                id = byPath?.id ?? sections[0]?.id ?? id
+              }
+              return {
+                id,
+                level: item.level,
+                title: item.title,
+              }
+            })
             return {
               id: sourceId,
               name: `${document.title}.epub`,
@@ -136,10 +161,11 @@ export function useWorkbench() {
                   title: section.title,
                   content: '',
                   html: section.html,
+                  path: section.path,
                 })),
               ),
               kind: 'epub' as const,
-              epubSections: sections,
+              epubSections: sections.map(({ id, title, html }) => ({ id, title, html })),
               epubToc: toc,
             }
           }),
@@ -208,8 +234,22 @@ export function useWorkbench() {
     setFiles((current) => current.filter((item) => item.id !== id))
   }
 
+  const scrollWithinPreview = (id: string) => {
+    const container = previewRef.current
+    const target = document.getElementById(id)
+    if (!target) return
+    if (!container || !container.contains(target)) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+    const containerRect = container.getBoundingClientRect()
+    const targetRect = target.getBoundingClientRect()
+    const nextTop = targetRect.top - containerRect.top + container.scrollTop - 8
+    container.scrollTo({ top: Math.max(0, nextTop), behavior: 'smooth' })
+  }
+
   const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollWithinPreview(id)
     setTocOpen(false)
   }
 
@@ -217,11 +257,11 @@ export function useWorkbench() {
     if (mode === 'epub') {
       const firstSection = derivedEpub.sections.find((section) => section.sourceFileId === id)
       if (firstSection) {
-        document.getElementById(firstSection.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        scrollWithinPreview(firstSection.id)
         return
       }
     }
-    document.getElementById(sourceAnchorId(id))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollWithinPreview(sourceAnchorId(id))
   }
 
   const exportMarkdown = () => {
@@ -272,7 +312,10 @@ export function useWorkbench() {
     contentLength,
     progressKey,
     previewRef,
-    onToggleToc: () => setTocOpen((open) => !open),
+    onToggleToc: () => {
+      if (mode === 'epub') return
+      setTocOpen((open) => !open)
+    },
     onCloseToc: () => setTocOpen(false),
     onSelectSection: scrollToSection,
     onDecreaseFont: () => setFontSize((size) => size - 1),

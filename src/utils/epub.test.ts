@@ -18,7 +18,7 @@ describe('EPUB support', () => {
     expect(
       toEpubExcerpt({
         title: 'Book',
-        sections: [{ id: 's1', title: 'Intro', content: 'Body', html: '<p>Body</p>' }],
+        sections: [{ id: 's1', title: 'Intro', content: 'Body', html: '<p>Body</p>', path: 'OEBPS/a.xhtml' }],
         toc: [{ id: 'x', level: 1, title: 'Intro' }],
       }),
     ).toEqual({
@@ -44,8 +44,8 @@ describe('EPUB support', () => {
 
   it('joins and splits EPUB chapter HTML without collapsing tags', () => {
     const joined = joinEpubSections([
-      { id: '1', title: 'A', content: 'A', html: '<h1>Praise</h1><p><em>Effective</em></p>' },
-      { id: '2', title: 'B', content: 'B', html: '<p>Second</p>' },
+      { id: '1', title: 'A', content: 'A', html: '<h1>Praise</h1><p><em>Effective</em></p>', path: 'a.xhtml' },
+      { id: '2', title: 'B', content: 'B', html: '<p>Second</p>', path: 'b.xhtml' },
     ])
     expect(joined).toContain('<em>Effective</em>')
     expect(splitEpubSections(joined)).toEqual([
@@ -73,6 +73,33 @@ describe('EPUB support', () => {
     expect(parsed.sections[0].html).toContain('<em>Effective TypeScript</em>')
     expect(parsed.sections[0].html).toContain('<figure data-type="cover">')
     expect(parsed.sections[0].html).not.toMatch(/^&lt;/)
+  })
+
+  it('maps nav hrefs to the matching spine chapter instead of TOC index order', async () => {
+    const { zipSync, strToU8 } = await import('fflate')
+    const bytes = zipSync({
+      mimetype: strToU8('application/epub+zip'),
+      'META-INF/container.xml': strToU8(
+        `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`,
+      ),
+      'OEBPS/content.opf': strToU8(
+        `<?xml version="1.0"?><package><metadata><dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Nav Book</dc:title></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="c1" href="ch1.xhtml" media-type="application/xhtml+xml"/><item id="c2" href="ch2.xhtml" media-type="application/xhtml+xml"/><item id="c3" href="ch3.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="c1"/><itemref idref="c2"/><itemref idref="c3"/></spine></package>`,
+      ),
+      'OEBPS/nav.xhtml': strToU8(
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body><nav epub:type="toc"><ol><li><a href="ch3.xhtml#part-b">Jump Three</a></li><li><a href="ch1.xhtml">Jump One</a></li></ol></nav></body></html>`,
+      ),
+      'OEBPS/ch1.xhtml': strToU8(`<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>One</h1><p>A</p></body></html>`),
+      'OEBPS/ch2.xhtml': strToU8(`<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Two</h1><p>B</p></body></html>`),
+      'OEBPS/ch3.xhtml': strToU8(
+        `<html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Three</h1><h2 id="part-b">Part B</h2><p>C</p></body></html>`,
+      ),
+    })
+    const parsed = await parseEpubDocument(new File([bytes], 'nav.epub', { type: 'application/epub+zip' }))
+    expect(parsed.toc[0].title).toBe('Jump Three')
+    expect(parsed.toc[0].id).toContain(parsed.sections[2].id)
+    expect(parsed.toc[0].id).toContain('__frag__')
+    expect(parsed.sections[2].html).toContain(parsed.toc[0].id)
+    expect(parsed.toc[1].id).toBe(parsed.sections[0].id)
   })
 
   it('inlines package images and chapter CSS for readable preview', async () => {

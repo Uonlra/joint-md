@@ -73,6 +73,7 @@ export function PreviewPanel({
         fileCount={fileCount}
         contentLength={contentLength}
         tocCount={toc.length}
+        tocEnabled={mode !== 'epub'}
         fontSize={fontSize}
         softPaper={softPaper}
         onToggleToc={onToggleToc}
@@ -81,10 +82,10 @@ export function PreviewPanel({
         onToggleSoftPaper={onToggleSoftPaper}
         onEnterReaderMode={onEnterReaderMode}
       />
-      {tocOpen && (
+      {tocOpen && mode !== 'epub' && (
         <TocPanel
           toc={toc}
-          label={mode === 'epub' ? 'EPUB 目录' : '文章目录'}
+          label="文章目录"
           onClose={onCloseToc}
           onSelect={onSelectSection}
         />
