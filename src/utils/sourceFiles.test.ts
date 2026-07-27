@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { acceptSourceFiles, isAcceptedSourceFileName } from './sourceFiles'
+import { acceptSourceFiles, isAcceptedDocumentName, isAcceptedSourceFileName } from './sourceFiles'
 
 describe('Source File acceptance', () => {
   it('accepts .md and .markdown names into the File Queue whitelist', () => {
     expect(isAcceptedSourceFileName('notes.md')).toBe(true)
     expect(isAcceptedSourceFileName('chapter.MARKDOWN')).toBe(true)
+  })
+
+  it('accepts EPUB names into the document whitelist', () => {
+    expect(isAcceptedDocumentName('book.epub')).toBe(true)
+    expect(isAcceptedDocumentName('book.EPUB')).toBe(true)
   })
 
   it('rejects non-whitelist extensions', () => {
@@ -34,7 +39,7 @@ describe('Source File acceptance', () => {
     const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope' }], () => 'x')
 
     expect(result.files).toEqual([])
-    expect(result.notice).toBe('请选择 .md 或 .markdown 文件。')
+    expect(result.notice).toBe('请选择 .md、.markdown 或 .epub 文件。')
   })
 
   it('allows duplicate names and contents as separate File Queue entries', () => {

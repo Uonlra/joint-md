@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { JoinMode, SourceFile } from '../types'
 import { sourceAnchorId } from '../utils/document'
 import { acceptSourceFiles, isAcceptedSourceFileName } from '../utils/sourceFiles'
+import { parseEpubDocument } from '../utils/epub'
 import { deriveMergedDocument } from './deriveMergedDocument'
 import { exportMarkdown as runExportMarkdown, printToPdf as runPrintToPdf } from './exportDocument'
 import { persistReadingProgress, scheduleRestoreReadingProgress } from './readingProgress'
@@ -35,10 +36,17 @@ export function useWorkbench() {
 
   const addFiles = async (incoming: FileList | File[]) => {
     const candidates = await Promise.all(
-      Array.from(incoming).map(async (file) => ({
-        name: file.name,
-        content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
-      })),
+      Array.from(incoming).map(async (file) => {
+        if (/\.epub$/i.test(file.name)) {
+          const parsed = await parseEpubDocument(file)
+          return { name: file.name, content: parsed.markdown }
+        }
+
+        return {
+          name: file.name,
+          content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
+        }
+      }),
     )
     const result = acceptSourceFiles(candidates)
     if (result.files.length) {
