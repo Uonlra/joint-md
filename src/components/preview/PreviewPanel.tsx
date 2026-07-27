@@ -12,6 +12,7 @@ type PreviewPanelProps = {
   fileCount: number
   markdown: string
   segments: DocumentSegment[]
+  epubHtml?: string[]
   joinModeRule: boolean
   toc: TableOfContentsItem[]
   tocOpen: boolean
@@ -38,6 +39,7 @@ export function PreviewPanel({
   fileCount,
   markdown,
   segments,
+  epubHtml,
   joinModeRule,
   toc,
   tocOpen,
@@ -77,6 +79,7 @@ export function PreviewPanel({
       <MarkdownPreview
         markdown={markdown}
         segments={segments}
+        epubHtml={epubHtml}
         joinModeRule={joinModeRule}
         toc={toc}
         fontSize={fontSize}

@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { acceptSourceFiles, isAcceptedDocumentName, isAcceptedSourceFileName } from './sourceFiles'
+import {
+  acceptSourceFiles,
+  isAcceptedDocumentName,
+  isAcceptedSourceFileName,
+  kindFromFileName,
+  kindFromQueue,
+  NOTICE_MIXED_IMPORT,
+  NOTICE_QUEUE_KIND_MISMATCH,
+  NOTICE_UNSUPPORTED,
+} from './sourceFiles'
 
 describe('Source File acceptance', () => {
   it('accepts .md and .markdown names into the File Queue whitelist', () => {
@@ -22,7 +31,7 @@ describe('Source File acceptance', () => {
     const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope', kind: 'markdown' }], () => 'x')
 
     expect(result.files).toEqual([])
-    expect(result.notice).toBe('请选择 .md、.markdown 或 .epub 文件。')
+    expect(result.notice).toBe(NOTICE_UNSUPPORTED)
   })
 
   it('rejects mixed markdown and epub imports in one batch', () => {
@@ -35,7 +44,17 @@ describe('Source File acceptance', () => {
     )
 
     expect(result.files).toEqual([])
-    expect(result.notice).toBe('请一次只导入 Markdown 文件或 EPUB 文件，不能混合导入。')
+    expect(result.notice).toBe(NOTICE_MIXED_IMPORT)
+  })
+
+  it('detects document kinds from file names and queue state', () => {
+    expect(kindFromFileName('a.md')).toBe('markdown')
+    expect(kindFromFileName('b.epub')).toBe('epub')
+    expect(kindFromFileName('c.txt')).toBeNull()
+    expect(kindFromQueue([{ name: 'a.md' }, { name: 'b.markdown' }])).toBe('markdown')
+    expect(kindFromQueue([{ name: 'a.epub' }])).toBe('epub')
+    expect(kindFromQueue([])).toBeNull()
+    expect(NOTICE_QUEUE_KIND_MISMATCH).toContain('工作队列')
   })
 
   it('rejects oversized markdown imports', () => {

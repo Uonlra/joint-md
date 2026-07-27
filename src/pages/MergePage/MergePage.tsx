@@ -31,6 +31,7 @@ export default function MergePage() {
           fileCount={preview.fileCount}
           markdown={preview.markdown}
           segments={preview.segments}
+          epubHtml={preview.epubHtml}
           joinModeRule={preview.joinModeRule}
           toc={preview.toc}
           tocOpen={preview.tocOpen}

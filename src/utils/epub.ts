@@ -137,13 +137,21 @@ const extractBodyText = (html: string) => {
   return stripTags(withoutScripts)
 }
 
+export const EPUB_SECTION_SEPARATOR = '\n<!--joint-md-epub-section-->\n'
+
 const extractBodyHtml = (html: string) => {
-  const body = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1]
+  const body = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1]
   return (body ?? html)
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .trim()
 }
+
+export const joinEpubSections = (sections: EpubSection[]) =>
+  sections.map((section) => section.html).join(EPUB_SECTION_SEPARATOR)
+
+export const splitEpubSections = (content: string) =>
+  content.split(EPUB_SECTION_SEPARATOR).filter((section) => section.trim().length > 0)
 
 export const isAcceptedEpubName = (name: string) => /\.epub$/i.test(name)
 

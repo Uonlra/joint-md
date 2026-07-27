@@ -12,6 +12,7 @@ type MarkdownPreviewProps = {
   joinModeRule: boolean
   toc: TableOfContentsItem[]
   fontSize: number
+  epubHtml?: string[]
   previewRef: RefObject<HTMLDivElement | null>
   onPersistProgress: (scrollTop: number) => void
 }
@@ -22,6 +23,7 @@ export function MarkdownPreview({
   joinModeRule,
   toc,
   fontSize,
+  epubHtml,
   previewRef,
   onPersistProgress,
 }: MarkdownPreviewProps) {
@@ -38,11 +40,21 @@ export function MarkdownPreview({
   return (
     <div
       ref={previewRef}
-      className={`preview-content ${markdown ? '' : 'is-empty'}`}
+      className={`preview-content ${epubHtml?.length || markdown ? '' : 'is-empty'}`}
       style={{ fontSize: `${fontSize}px` }}
       onScroll={onScroll}
     >
-      {markdown ? (
+      {epubHtml?.length ? (
+        epubHtml.map((chapterHtml, index) => (
+          <section
+            key={`epub-${index}`}
+            className="source-segment epub-segment"
+            id={sourceAnchorId(`epub-${index}`)}
+          >
+            <article className="epub-body" dangerouslySetInnerHTML={{ __html: chapterHtml }} />
+          </section>
+        ))
+      ) : markdown ? (
         segments.map((segment, index) => (
           <div key={segment.id}>
             {index > 0 && joinModeRule ? <hr /> : null}
