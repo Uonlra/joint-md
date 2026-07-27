@@ -1,10 +1,10 @@
 # Joint MD
 
-A **local-only** client that joins multiple Markdown source files into one **Merged Document**, previews it with GitHub Flavored Markdown, and supports **Export Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
+A **local-only** client that joins multiple Markdown source files into one **Merged Document**, previews it with GitHub Flavored Markdown , and supports **Export Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
 
 ## Features
 
-- Drag or pick multiple `.md` / `.markdown` files into a **File Queue**
+- Drag or pick multiple `.md` / `.markdown & .epub` files into a **File Queue**
 - Reorder (drag, up/down), remove, and jump to a source’s start in the preview
 - **Join Mode**: Plain (blank lines), Rule (horizontal rule), Filename Heading
 - Live GFM preview (tables, code, blockquotes, task lists, …)
