@@ -18,6 +18,7 @@ type PreviewPanelProps = {
   fontSize: number
   softPaper: boolean
   notice: string
+  importStatus?: 'idle' | 'loading' | 'error' | 'success'
   previewRef: RefObject<HTMLDivElement | null>
   onToggleToc: () => void
   onCloseToc: () => void
@@ -43,6 +44,7 @@ export function PreviewPanel({
   fontSize,
   softPaper,
   notice,
+  importStatus,
   previewRef,
   onToggleToc,
   onCloseToc,
@@ -83,6 +85,7 @@ export function PreviewPanel({
       />
       <ExportBar
         notice={notice}
+        importStatus={importStatus}
         hasMarkdown={Boolean(markdown)}
         onExportMarkdown={onExportMarkdown}
         onPrintPdf={onPrintPdf}

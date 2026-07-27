@@ -37,6 +37,7 @@ export default function MergePage() {
           fontSize={preview.fontSize}
           softPaper={preview.softPaper}
           notice={preview.notice}
+          importStatus={preview.importStatus}
           previewRef={preview.previewRef}
           onToggleToc={preview.onToggleToc}
           onCloseToc={preview.onCloseToc}

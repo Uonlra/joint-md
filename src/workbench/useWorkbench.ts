@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { JoinMode, SourceFile } from '../types'
 import { sourceAnchorId } from '../utils/document'
 import { acceptSourceFiles, isAcceptedSourceFileName, type IncomingDocument } from '../utils/sourceFiles'
-import { parseEpubDocument } from '../utils/epub'
+import { createEpubDebugLogger, parseEpubDocument } from '../utils/epub'
 import { deriveMergedDocument } from './deriveMergedDocument'
 import { exportMarkdown as runExportMarkdown, printToPdf as runPrintToPdf } from './exportDocument'
 import { persistReadingProgress, scheduleRestoreReadingProgress } from './readingProgress'
@@ -11,6 +11,7 @@ export function useWorkbench() {
   const [files, setFiles] = useState<SourceFile[]>([])
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
+  const [importStatus, setImportStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle')
   const [joinMode, setJoinMode] = useState<JoinMode>('rule')
   const [exportName, setExportName] = useState('merged-document')
   const [readerMode, setReaderMode] = useState(false)
@@ -18,6 +19,8 @@ export function useWorkbench() {
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('joint-md-font-size')) || 16)
   const [softPaper, setSoftPaper] = useState(() => localStorage.getItem('joint-md-soft-paper') === 'true')
   const previewRef = useRef<HTMLDivElement>(null)
+  const epubDebugEnabled = localStorage.getItem('joint-md-debug-epub') === '1'
+  const epubLogger = createEpubDebugLogger(epubDebugEnabled)
 
   const derived = useMemo(() => deriveMergedDocument(files, joinMode), [files, joinMode])
 
@@ -36,31 +39,63 @@ export function useWorkbench() {
 
   const addFiles = async (incoming: FileList | File[]) => {
     try {
-      const sourceKind = Array.from(incoming).every((file) => /\.epub$/i.test(file.name))
-        ? 'epub'
-        : 'markdown'
+      if (!incoming.length) return
 
-      const candidates = await Promise.all(
-        Array.from(incoming).map(async (file) => {
-          if (/\.epub$/i.test(file.name)) {
-            const parsed = await parseEpubDocument(file)
-            return { name: parsed.title || file.name, content: parsed.markdown, kind: 'epub' } satisfies IncomingDocument
-          }
+      setImportStatus('loading')
+      setNotice('正在导入文件...')
 
-          return {
+      const items = Array.from(incoming)
+      const hasEpub = items.some((file) => /\.epub$/i.test(file.name))
+      const hasMarkdown = items.some((file) => /\.(md|markdown)$/i.test(file.name))
+      if (hasEpub && hasMarkdown) {
+        setImportStatus('error')
+        setNotice('请一次只导入 Markdown 文件或 EPUB 文件，不能混合导入。')
+        return
+      }
+
+      if (hasEpub) {
+        const parsed = await Promise.all(
+          items.map(async (file) => {
+            epubLogger.log('dispatch epub file', { name: file.name, size: file.size, type: file.type })
+            const document = await parseEpubDocument(file, epubLogger)
+            return {
+              id: crypto.randomUUID(),
+              name: `${document.title}.epub`,
+              content: document.sections.map((section) => section.html).join('\n'),
+            }
+          }),
+        )
+
+        setFiles((current) => [...current, ...parsed])
+        setNotice(`已添加 ${parsed.length} 个 EPUB 文件。`)
+        setImportStatus('success')
+        return
+      }
+
+      if (hasMarkdown) {
+        const candidates: IncomingDocument[] = await Promise.all(
+          items.map(async (file) => ({
             name: file.name,
             content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
-            kind: sourceKind,
-          } satisfies IncomingDocument
-        }),
-      )
-      const result = acceptSourceFiles(candidates)
-      if (result.files.length) {
-        setFiles((current) => [...current, ...result.files])
+            kind: 'markdown',
+          })),
+        )
+        const result = acceptSourceFiles(candidates)
+        if (result.files.length) {
+          setFiles((current) => [...current, ...result.files])
+        }
+        setNotice(result.notice)
+        setImportStatus(result.files.length ? 'success' : 'error')
+        return
       }
-      setNotice(result.notice)
-    } catch {
-      setNotice('EPUB 解析失败，请确认文件是有效的 EPUB。')
+
+      setImportStatus('error')
+      setNotice('请选择 .md、.markdown 或 .epub 文件。')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown import error'
+      setImportStatus('error')
+      setNotice(`EPUB 解析失败：${message}`)
+      epubLogger.error('import failed', message)
     }
   }
 
@@ -137,6 +172,7 @@ export function useWorkbench() {
     fontSize,
     softPaper,
     notice,
+    importStatus,
     progressKey: derived.progressKey,
     previewRef,
     onToggleToc: () => setTocOpen((open) => !open),

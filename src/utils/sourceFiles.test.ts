@@ -19,7 +19,7 @@ describe('Source File acceptance', () => {
   })
 
   it('returns a notice that mentions epub support', () => {
-    const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope' }], () => 'x')
+    const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope', kind: 'markdown' }], () => 'x')
 
     expect(result.files).toEqual([])
     expect(result.notice).toBe('请选择 .md、.markdown 或 .epub 文件。')
@@ -50,11 +50,11 @@ describe('Source File acceptance', () => {
 
   it('returns only accepted Source Files and a success notice', () => {
     const result = acceptSourceFiles(
-      [
-        { name: 'a.md', content: 'alpha' },
-        { name: 'b.txt', content: 'ignored' },
-        { name: 'c.markdown', content: 'gamma' },
-      ],
+        [
+        { name: 'a.md', content: 'alpha', kind: 'markdown' },
+        { name: 'b.txt', content: 'ignored', kind: 'markdown' },
+        { name: 'c.markdown', content: 'gamma', kind: 'markdown' },
+        ],
       () => 'id-fixed',
     )
 
@@ -69,8 +69,8 @@ describe('Source File acceptance', () => {
     const ids = ['1', '2']
     const result = acceptSourceFiles(
       [
-        { name: 'same.md', content: 'body' },
-        { name: 'same.md', content: 'body' },
+        { name: 'same.md', content: 'body', kind: 'markdown' },
+        { name: 'same.md', content: 'body', kind: 'markdown' },
       ],
       () => ids.shift()!,
     )

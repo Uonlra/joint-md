@@ -6,7 +6,7 @@ export type IncomingSource = {
 }
 
 export type IncomingDocument = IncomingSource & {
-  kind?: 'markdown' | 'epub'
+  kind: 'markdown' | 'epub'
 }
 
 export type AcceptSourceFilesResult = {
@@ -31,7 +31,7 @@ export const acceptSourceFiles = (
     return { files: [], notice: '请选择 .md、.markdown 或 .epub 文件。' }
   }
 
-  const kinds = new Set(accepted.map((file) => file.kind ?? 'markdown'))
+  const kinds = new Set(accepted.map((file) => file.kind))
   if (kinds.size > 1) {
     return { files: [], notice: '请一次只导入 Markdown 文件或 EPUB 文件，不能混合导入。' }
   }
