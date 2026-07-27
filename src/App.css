@@ -291,6 +291,11 @@
   scroll-margin-top: 12px;
 }
 
+.epub-segment [id*='__frag__'],
+.epub-segment [data-epub-fragment] {
+  scroll-margin-top: 16px;
+}
+
 .source-gap {
   height: 1.2em;
 }
@@ -357,6 +362,24 @@
   border-color: var(--color-line);
   background: var(--color-white);
   color: var(--color-ink);
+}
+
+.toc-button {
+  cursor: pointer;
+}
+
+.toc-button-disabled,
+.toc-button-disabled:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.toc-button-disabled:hover,
+.toc-button-disabled:disabled:hover {
+  cursor: not-allowed;
+  border-color: var(--color-line);
+  background: var(--color-white);
+  color: var(--color-ink-soft);
 }
 
 .icon-button.danger:hover:not(:disabled) {
