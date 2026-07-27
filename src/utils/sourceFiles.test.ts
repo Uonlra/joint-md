@@ -18,6 +18,36 @@ describe('Source File acceptance', () => {
     expect(isAcceptedSourceFileName('readme')).toBe(false)
   })
 
+  it('returns a notice that mentions epub support', () => {
+    const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope' }], () => 'x')
+
+    expect(result.files).toEqual([])
+    expect(result.notice).toBe('请选择 .md、.markdown 或 .epub 文件。')
+  })
+
+  it('rejects mixed markdown and epub imports in one batch', () => {
+    const result = acceptSourceFiles(
+      [
+        { name: 'a.md', content: 'alpha', kind: 'markdown' },
+        { name: 'b.epub', content: 'beta', kind: 'epub' },
+      ],
+      () => 'x',
+    )
+
+    expect(result.files).toEqual([])
+    expect(result.notice).toBe('请一次只导入 Markdown 文件或 EPUB 文件，不能混合导入。')
+  })
+
+  it('rejects oversized markdown imports', () => {
+    const result = acceptSourceFiles(
+      [{ name: 'big.md', content: 'x'.repeat(5 * 1024 * 1024 + 1), kind: 'markdown' }],
+      () => 'x',
+    )
+
+    expect(result.files).toEqual([])
+    expect(result.notice).toBe('单个 Markdown 文件最大支持 5 MB。')
+  })
+
   it('returns only accepted Source Files and a success notice', () => {
     const result = acceptSourceFiles(
       [
@@ -33,13 +63,6 @@ describe('Source File acceptance', () => {
       { id: 'id-fixed', name: 'c.markdown', content: 'gamma' },
     ])
     expect(result.notice).toBe('已添加 2 个文件。')
-  })
-
-  it('rejects a batch with no accepted Source Files and sets a notice', () => {
-    const result = acceptSourceFiles([{ name: 'a.txt', content: 'nope' }], () => 'x')
-
-    expect(result.files).toEqual([])
-    expect(result.notice).toBe('请选择 .md、.markdown 或 .epub 文件。')
   })
 
   it('allows duplicate names and contents as separate File Queue entries', () => {

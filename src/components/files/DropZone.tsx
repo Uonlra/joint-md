@@ -8,6 +8,7 @@ type DropZoneProps = {
 export function DropZone({ onAddFiles }: DropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const inputId = 'joint-md-file-input'
 
   return (
     <div
@@ -25,15 +26,16 @@ export function DropZone({ onAddFiles }: DropZoneProps) {
       }}
     >
       <FilePlus2 size={24} />
-      <strong>拖入 .md 文件</strong>
-      <span>按顺序加入 File Queue · 支持多选</span>
-      <button className="secondary-button" type="button" onClick={() => inputRef.current?.click()}>
+      <strong>拖入 .md 或 .epub 文件</strong>
+      <span>每次只支持一种格式，单个 Markdown 上限 5 MB，单个 EPUB 上限 50 MB</span>
+      <label className="secondary-button" htmlFor={inputId} role="button" tabIndex={0}>
         选择文件
-      </button>
+      </label>
       <input
         ref={inputRef}
+        id={inputId}
         type="file"
-        accept=".md,.markdown,text/markdown,text/plain"
+        accept=".md,.markdown,.epub,text/markdown,text/plain,application/epub+zip"
         multiple
         onChange={(event: ChangeEvent<HTMLInputElement>) => {
           if (event.target.files) void onAddFiles(event.target.files)

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { JoinMode, SourceFile } from '../types'
 import { sourceAnchorId } from '../utils/document'
-import { acceptSourceFiles, isAcceptedSourceFileName } from '../utils/sourceFiles'
+import { acceptSourceFiles, isAcceptedSourceFileName, type IncomingDocument } from '../utils/sourceFiles'
 import { parseEpubDocument } from '../utils/epub'
 import { deriveMergedDocument } from './deriveMergedDocument'
 import { exportMarkdown as runExportMarkdown, printToPdf as runPrintToPdf } from './exportDocument'
@@ -35,24 +35,33 @@ export function useWorkbench() {
   )
 
   const addFiles = async (incoming: FileList | File[]) => {
-    const candidates = await Promise.all(
-      Array.from(incoming).map(async (file) => {
-        if (/\.epub$/i.test(file.name)) {
-          const parsed = await parseEpubDocument(file)
-          return { name: file.name, content: parsed.markdown }
-        }
+    try {
+      const sourceKind = Array.from(incoming).every((file) => /\.epub$/i.test(file.name))
+        ? 'epub'
+        : 'markdown'
 
-        return {
-          name: file.name,
-          content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
-        }
-      }),
-    )
-    const result = acceptSourceFiles(candidates)
-    if (result.files.length) {
-      setFiles((current) => [...current, ...result.files])
+      const candidates = await Promise.all(
+        Array.from(incoming).map(async (file) => {
+          if (/\.epub$/i.test(file.name)) {
+            const parsed = await parseEpubDocument(file)
+            return { name: parsed.title || file.name, content: parsed.markdown, kind: 'epub' } satisfies IncomingDocument
+          }
+
+          return {
+            name: file.name,
+            content: isAcceptedSourceFileName(file.name) ? await file.text() : '',
+            kind: sourceKind,
+          } satisfies IncomingDocument
+        }),
+      )
+      const result = acceptSourceFiles(candidates)
+      if (result.files.length) {
+        setFiles((current) => [...current, ...result.files])
+      }
+      setNotice(result.notice)
+    } catch {
+      setNotice('EPUB 解析失败，请确认文件是有效的 EPUB。')
     }
-    setNotice(result.notice)
   }
 
   const moveFile = (from: number, to: number) => {
