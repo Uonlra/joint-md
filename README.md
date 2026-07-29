@@ -1,17 +1,23 @@
 # Joint MD
 
-A **local-only** client that joins multiple Markdown source files into one **Merged Document**, previews it with GitHub Flavored Markdown, and supports **Export Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
+A **local-only** client that joins multiple Markdown source files into one **Merged Document**, or imports **EPUB** books for in-app reading. Preview uses GitHub Flavored Markdown (Markdown mode). Export **Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
 
 ## Features
 
-- Drag or pick multiple `.md` / `.markdown` files into a **File Queue**
-- Reorder (drag, up/down), remove, and jump to a source’s start in the preview
-- **Join Mode**: Plain (blank lines), Rule (horizontal rule), Filename Heading
-- Live GFM preview (tables, code, blockquotes, task lists, …)
-- **Export Markdown** download of the merged result
-- **Print to PDF** via the browser print dialog
-- **Reader Mode**, table of contents (H1–H3), font size, soft paper tint
+- Drag or pick `.md` / `.markdown` / `.epub` into the queue (one kind per session — no mixed queue)
+- **Markdown mode**
+  - Reorder (drag, up/down), remove, jump to a source’s start in the preview
+  - **Join Mode**: Plain (blank lines), Rule (horizontal rule), Filename Heading
+  - Live GFM preview (tables, code, blockquotes, task lists, …)
+  - **Export Markdown** download of the merged result
+  - TOC (H1–H3) from the merged document
+- **EPUB mode**
+  - Parse EPUB in the browser (chapters + inlined assets for preview)
+  - Reading queue; Join Mode / Export Markdown do not apply
+  - **Print to PDF** of the rendered EPUB body (same browser print flow)
+- Shared: **Print to PDF**, **Reader Mode**, font size, soft paper tint
 - **Reader Preferences** and **Reading Progress** in browser storage (not file bodies)
+- Size limits: Markdown **5 MB** / file, EPUB **50 MB** / file
 - Installable **PWA** (standalone window; app shell cache only)
 
 ## Stack
@@ -19,6 +25,7 @@ A **local-only** client that joins multiple Markdown source files into one **Mer
 - React 19 + TypeScript + Vite
 - `vite-plugin-pwa`
 - `react-markdown` + `remark-gfm`
+- `fflate` (EPUB ZIP)
 - `lucide-react`
 - Browser File / Blob / `localStorage` / Drag and Drop APIs
 
@@ -41,12 +48,20 @@ Dev server is usually at `http://127.0.0.1:5173`.
 
 ## Usage
 
-1. Add Markdown files to the File Queue (left).
+### Markdown
+
+1. Add `.md` / `.markdown` files to the File Queue (left).
 2. Set order and **Join Mode**; set **Export Name**.
 3. Preview the Merged Document (right).
 4. Click a queue file name to scroll the preview to that source’s start.
-5. **Export Markdown** or **Print to PDF** (then choose “Save as PDF” in the system dialog).
+5. **Export Markdown** or **Print to PDF** (then choose “Save as PDF”).
 6. Use **Reader Mode** for immersive reading (TOC, font size, paper tint).
+
+### EPUB
+
+1. Add `.epub` file(s) only (clear the queue first if it already has Markdown).
+2. Preview chapters in the right pane; use font size / paper tint / Reader Mode as needed.
+3. **Print to PDF** if desired. **Export Markdown** is disabled in EPUB mode.
 
 ## Print to PDF
 
@@ -68,8 +83,8 @@ See `docs/adr/0001-print-to-pdf-via-browser.md`.
 
 Notes:
 
-- The service worker caches the **app shell** only (HTML/JS/CSS/fonts/icons). It does **not** store Source File content.
-- Closing or reloading clears the File Queue (**Session Content**). Preferences and reading progress stay in **Browser Memory** (`localStorage`).
+- The service worker caches the **app shell** only (HTML/JS/CSS/fonts/icons). It does **not** store Source File or EPUB content.
+- Closing or reloading clears the queue (**Session Content**). Preferences and reading progress stay in **Browser Memory** (`localStorage`).
 - PWA is disabled in `npm run dev`; use `build` + `preview` to verify install.
 
 ## Project layout
@@ -77,10 +92,11 @@ Notes:
 ```text
 joint-md/
 ├─ src/
-│  ├─ workbench/     # Workbench orchestration, export, reading progress
+│  ├─ workbench/     # Workbench, merge/EPUB derive, export, reading progress
 │  ├─ components/    # File queue & preview UI
 │  ├─ pages/         # MergePage adapter
-│  ├─ utils/         # join, TOC, source acceptance
+│  ├─ utils/         # join, TOC, source acceptance, EPUB parse, download/print
+│  ├─ types/         # shared domain types
 │  ├─ main.tsx       # entry + PWA registration
 │  └─ index.css      # design tokens
 ├─ public/           # icons & PWA assets
@@ -101,7 +117,8 @@ See `docs/adr/0002-local-only-no-server-file-processing.md`.
 - PDF → Markdown, OCR, faithful complex PDF layout
 - Cloud storage, accounts, collaboration
 - Server-side processing of user files
-- Resolving relative assets against each source file’s original path
+- Resolving relative assets against each Markdown source file’s original path
+- Exporting EPUB as Markdown, or full EPUB authoring / re-packaging
 
 ## License
 
