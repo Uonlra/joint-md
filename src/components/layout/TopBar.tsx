@@ -1,11 +1,13 @@
-import { BookOpen, PanelLeftOpen } from 'lucide-react'
+import { BookOpen, PanelLeftOpen, Wrench } from 'lucide-react'
 
 type TopBarProps = {
   readerMode: boolean
+  toolsOpen: boolean
   onToggleReaderMode: () => void
+  onToggleTools: () => void
 }
 
-export function TopBar({ readerMode, onToggleReaderMode }: TopBarProps) {
+export function TopBar({ readerMode, toolsOpen, onToggleReaderMode, onToggleTools }: TopBarProps) {
   return (
     <header className="topbar">
       <div className="brand">
@@ -19,6 +21,10 @@ export function TopBar({ readerMode, onToggleReaderMode }: TopBarProps) {
           <i aria-hidden="true" />
           本地处理
         </span>
+        <button className="reader-toggle" type="button" onClick={onToggleTools}>
+          <Wrench size={16} />
+          {toolsOpen ? '返回工作台' : '工具集'}
+        </button>
         <button className="reader-toggle" type="button" onClick={onToggleReaderMode}>
           {readerMode ? <PanelLeftOpen size={16} /> : <BookOpen size={16} />}
           {readerMode ? '返回工作台' : '阅读模式'}

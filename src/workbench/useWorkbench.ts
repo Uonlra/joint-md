@@ -33,6 +33,7 @@ export function useWorkbench() {
   const [exportName, setExportName] = useState('merged-document')
   const [readerMode, setReaderMode] = useState(false)
   const [tocOpen, setTocOpen] = useState(false)
+  const [toolsOpen, setToolsOpen] = useState(false)
   const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('joint-md-font-size')) || 16)
   const [softPaper, setSoftPaper] = useState(() => localStorage.getItem('joint-md-soft-paper') === 'true')
   const previewRef = useRef<HTMLDivElement>(null)
@@ -330,7 +331,13 @@ export function useWorkbench() {
   return {
     readerMode,
     softPaper,
+    toolsOpen,
+    toolsInitialInput: mode === 'markdown' ? derivedMarkdown.markdown : '',
     toggleReaderMode: () => setReaderMode((enabled) => !enabled),
+    toggleTools: () => {
+      setToolsOpen((open) => !open)
+      setTocOpen(false)
+    },
     queue,
     preview,
   }
