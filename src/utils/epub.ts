@@ -455,7 +455,6 @@ export const parseEpubDocument = async (
       const fragments = fragmentsBySection.get(section.id)
       if (fragments?.length) {
         section.html = ensureFragmentTargets(section.html, section.id, fragments)
-        section.id = section.id
       }
     }
 

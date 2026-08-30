@@ -781,8 +781,353 @@
 }
 
 .soft-paper .preview-content {
-  background: var(--color-soft-paper);
+  background: var(--color-soft-paper-2);
+  border-color: var(--color-soft-line);
 }
+
+/* Tools page */
+
+.tools-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  overflow: auto;
+  background: var(--color-surface);
+}
+
+.tools-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.tools-header h1 {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.tools-header p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+.tool-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tool-card {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--ease), background var(--ease);
+}
+
+.tool-card:hover {
+  border-color: var(--color-line-strong);
+}
+
+.tool-card.selected {
+  border-color: var(--color-ink);
+  background: var(--color-white);
+  box-shadow: var(--shadow-float);
+}
+
+.tool-card strong {
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+.tool-card span {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.tools-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
+  gap: var(--space-4);
+}
+
+.tools-input,
+.tools-output {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  overflow: hidden;
+}
+
+.tools-input-head,
+.tools-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.tools-input textarea {
+  flex: 1 1 auto;
+  min-height: 260px;
+  padding: var(--space-4);
+  border: 0;
+  outline: none;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-ink);
+  background: var(--color-white);
+}
+
+.tools-summary {
+  font-size: 12px;
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.tools-output {
+  overflow: auto;
+}
+
+.tools-empty {
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  color: var(--color-muted);
+  text-align: center;
+  padding: var(--space-5);
+}
+
+.tools-empty p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+
+.tools-empty span {
+  font-size: 12px;
+  color: var(--color-faint);
+}
+
+.tools-notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-danger);
+  font-size: 13px;
+  background: color-mix(in srgb, var(--color-danger) 8%, var(--color-white));
+}
+
+.analyze-report {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.report-section h3 {
+  margin: 0 0 var(--space-3);
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--color-ink);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--space-2);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 650;
+  color: var(--color-ink);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.heading-tree {
+  margin: 0;
+  padding-left: 1.2em;
+  list-style: none;
+}
+
+.heading-tree .tree-node {
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.heading-tree .level-1 {
+  font-weight: 650;
+  color: var(--color-ink);
+}
+
+.heading-tree .level-2 {
+  font-weight: 550;
+}
+
+.report-table-wrap {
+  margin-bottom: var(--space-3);
+  overflow: auto;
+}
+
+.report-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.report-table-wrap th,
+.report-table-wrap td {
+  border: 1px solid var(--color-line);
+  padding: 5px 8px;
+  text-align: left;
+}
+
+.report-table-wrap th {
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.report-note {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--color-faint);
+}
+
+.report-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-ink-soft);
+}
+
+.report-list code {
+  font-size: 12px;
+  color: var(--color-muted);
+  word-break: break-all;
+}
+
+.report-list .link-kind {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  color: var(--color-muted);
+}
+
+.report-list .link-kind[data-kind='http'] {
+  color: var(--color-accent);
+}
+
+.report-list .link-kind[data-kind='anchor'] {
+  color: var(--color-ink-soft);
+}
+
+.report-list .link-text {
+  font-weight: 550;
+}
+
+.report-actions {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.report-empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-faint);
+}
+
+.convert-report {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.convert-toolbar {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.convert-output {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: var(--space-4);
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-ink);
+}
+
+@media (max-width: 900px) {
+  .tools-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tools-input textarea {
+    min-height: 160px;
+  }
+}
+
 
 .soft-paper .preview-panel {
   background: var(--color-soft-paper);
