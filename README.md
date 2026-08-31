@@ -49,7 +49,7 @@ EPUB 模式不支持导出为 Markdown。
 - Markdown：每个文件最大 5 MB
 - EPUB：每个文件最大 50 MB
 ## 快速开始
-请前往 [Release 页](https://github.com/Uonlra/joint-md/releases) 下载jointmd。
+请前往 [Release 页](https://github.com/Uonlra/joint-md/releases) 下载 jointmd。
 
 | 系统    | 架构                    | 类型     | 文件名                                      |
 | ------- | ----------------------- |----------| ------------------------------------------- |
