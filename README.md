@@ -1,125 +1,166 @@
 # Joint MD
 
-A **local-only** client that joins multiple Markdown source files into one **Merged Document**, or imports **EPUB** books for in-app reading. Preview uses GitHub Flavored Markdown (Markdown mode). Export **Markdown** or **Print to PDF** (browser print → Save as PDF). There is no backend, account system, or cloud storage.
+Joint MD 是一个本地运行的 Markdown 与 EPUB 阅读工具。它可以把多个 Markdown 文件按指定规则连接成一个文档，提供预览和阅读功能，并将文档导出为 Markdown 或通过系统打印流程保存为 PDF。
 
-## Features
+所有文件都在当前设备上处理，不需要后端、账号或云存储。
 
-- Drag or pick `.md` / `.markdown` / `.epub` into the queue (one kind per session — no mixed queue)
-- **Markdown mode**
-  - Reorder (drag, up/down), remove, jump to a source’s start in the preview
-  - **Join Mode**: Plain (blank lines), Rule (horizontal rule), Filename Heading
-  - Live GFM preview (tables, code, blockquotes, task lists, …)
-  - **Export Markdown** download of the merged result
-  - TOC (H1–H3) from the merged document
-- **EPUB mode**
-  - Parse EPUB in the browser (chapters + inlined assets for preview)
-  - Reading queue; Join Mode / Export Markdown do not apply
-  - **Print to PDF** of the rendered EPUB body (same browser print flow)
-- Shared: **Print to PDF**, **Reader Mode**, font size, soft paper tint
-- **Reader Preferences** and **Reading Progress** in browser storage (not file bodies)
-- Size limits: Markdown **5 MB** / file, EPUB **50 MB** / file
-- Installable **PWA** (standalone window; app shell cache only)
-
-## Stack
-
-- React 19 + TypeScript + Vite
-- `vite-plugin-pwa`
-- `react-markdown` + `remark-gfm`
-- `fflate` (EPUB ZIP)
-- `lucide-react`
-- Browser File / Blob / `localStorage` / Drag and Drop APIs
-
-## Requirements
-
-Node.js **20+**
-
-## Scripts
-
-```bash
-npm install
-npm run dev       # development server
-npm run build     # typecheck + production build (includes PWA assets)
-npm run preview   # serve dist (use this to test PWA install)
-npm run lint      # oxlint
-npm test          # vitest
-```
-
-Dev server is usually at `http://127.0.0.1:5173`.
-
-## Usage
+## 当前功能
 
 ### Markdown
 
-1. Add `.md` / `.markdown` files to the File Queue (left).
-2. Set order and **Join Mode**; set **Export Name**.
-3. Preview the Merged Document (right).
-4. Click a queue file name to scroll the preview to that source’s start.
-5. **Export Markdown** or **Print to PDF** (then choose “Save as PDF”).
-6. Use **Reader Mode** for immersive reading (TOC, font size, paper tint).
+- 导入 `.md` 和 `.markdown` 文件
+- 通过拖拽或文件选择器添加文件
+- 调整文件顺序、删除文件、跳转到文件在文档中的起始位置
+- 三种连接模式：
+  - Plain：文件之间使用空行
+  - Rule：文件之间使用水平分隔线
+  - Filename Heading：使用文件名生成一级标题
+- GitHub Flavored Markdown 预览
+- 支持表格、任务列表、删除线、代码块和引用等 Markdown 内容
+- 从一级到三级标题生成目录
+- Reader Mode 阅读模式
+- 调整字体大小和纸张色调
+- 导出合并后的 Markdown 文件
+- 通过系统打印流程保存为 PDF
 
 ### EPUB
 
-1. Add `.epub` file(s) only (clear the queue first if it already has Markdown).
-2. Preview chapters in the right pane; use font size / paper tint / Reader Mode as needed.
-3. **Print to PDF** if desired. **Export Markdown** is disabled in EPUB mode.
+- 导入 `.epub` 文件
+- 在本地解析 EPUB 内容
+- 预览章节和内嵌资源
+- 使用目录、阅读模式、字体大小和纸张色调进行阅读
+- 通过系统打印流程保存为 PDF
 
-## Print to PDF
+EPUB 模式不支持导出为 Markdown。
 
-PDF uses the **browser print flow** (no headless Chromium or PDF library). After **Print to PDF**:
+## 功能边界
 
-```text
-Destination: Save as PDF
+当前版本只处理当前运行会话中的文件内容：
+
+- Markdown 和 EPUB 内容保存在页面内存中
+- 文件不会上传到服务器
+- 关闭或刷新应用后，文件队列和文件内容会清除
+- 阅读进度和阅读偏好可以保存在本地浏览器存储中
+- 不提供账号、云同步、协作或服务器端文件处理
+- 不支持 PDF 转 Markdown、OCR 或 EPUB 重新打包
+
+文件大小限制：
+
+- Markdown：每个文件最大 5 MB
+- EPUB：每个文件最大 50 MB
+## 快速开始
+请前往 [Release 页](https://github.com/Uonlra/joint-md/releases) 下载jointmd。
+
+| 系统    | 架构                    | 类型     | 文件名                                      |
+| ------- | ----------------------- |----------| ------------------------------------------- |
+| Windows | x64                     | 安装程序 | joint-md_0.1.0_x64-setup.exe                |
+
+## 从源码构建
+
+### 浏览器开发
+
+环境要求：
+
+- Node.js 20 或更高版本
+- pnpm
+
+安装依赖并启动：
+
+```bash
+pnpm install
+pnpm dev
 ```
 
-Selectable text is preserved better than screenshot-style PDF tools.
+打开：
 
-See `docs/adr/0001-print-to-pdf-via-browser.md`.
+```text
+http://localhost:5173
+```
 
-## Install as a PWA
+### 浏览器生产预览
 
-1. `npm run build && npm run preview` (or host `dist` over **HTTPS** / `localhost`)
-2. In a supported browser, use **Install app** / **Install Joint MD**
-3. Launch from the desktop or app list (standalone window)
+```bash
+pnpm build
+pnpm preview
+```
 
-Notes:
+项目包含 PWA 配置，可以在支持的浏览器中安装为独立窗口。PWA 只缓存应用资源，不缓存 Markdown 或 EPUB 文件内容。
 
-- The service worker caches the **app shell** only (HTML/JS/CSS/fonts/icons). It does **not** store Source File or EPUB content.
-- Closing or reloading clears the queue (**Session Content**). Preferences and reading progress stay in **Browser Memory** (`localStorage`).
-- PWA is disabled in `npm run dev`; use `build` + `preview` to verify install.
+### Windows 桌面开发
 
-## Project layout
+桌面版本使用 Tauri 2。需要安装 Rust MSVC 工具链、Microsoft C++ Build Tools 和 WebView2 Runtime。
+
+启动桌面开发版本：
+
+```bash
+pnpm tauri dev
+```
+
+构建 Windows 发布包：
+
+```bash
+pnpm tauri build
+```
+
+如果只需要生成 Windows NSIS 安装程序：
+
+```bash
+pnpm tauri build --bundles nsis
+```
+
+构建产物位于：
+
+```text
+src-tauri/target/release/bundle/
+```
+
+NSIS 安装程序通常位于：
+
+```text
+src-tauri/target/release/bundle/nsis/
+```
+
+Tauri 桌面版的 Markdown 导出使用原生保存对话框。浏览器和 PWA 版本使用浏览器下载功能。
+
+## 常用命令
+
+```bash
+pnpm dev       # 启动 Vite 开发服务器
+pnpm build     # 类型检查并构建 Web/PWA 版本
+pnpm preview   # 预览生产构建
+pnpm test      # 运行测试
+pnpm lint      # 运行 Oxlint
+pnpm tauri dev # 启动 Tauri 桌面开发版本
+pnpm tauri build # 构建 Tauri 桌面发布包
+```
+
+## 技术栈
+
+- React 19
+- TypeScript
+- Vite
+- Tauri 2
+- `react-markdown` 与 `remark-gfm`
+- `fflate`，用于 EPUB ZIP 内容处理
+- `vite-plugin-pwa`
+- `lucide-react`
+- Vitest
+- Oxlint
+
+## 项目结构
 
 ```text
 joint-md/
 ├─ src/
-│  ├─ workbench/     # Workbench, merge/EPUB derive, export, reading progress
-│  ├─ components/    # File queue & preview UI
-│  ├─ pages/         # MergePage adapter
-│  ├─ utils/         # join, TOC, source acceptance, EPUB parse, download/print
-│  ├─ types/         # shared domain types
-│  ├─ main.tsx       # entry + PWA registration
-│  └─ index.css      # design tokens
-├─ public/           # icons & PWA assets
-├─ docs/             # agent docs & ADRs
-├─ CONTEXT.md        # domain glossary
-├─ package.json
-└─ vite.config.ts
+│  ├─ components/    # 文件队列、预览和布局组件
+│  ├─ pages/         # 页面组件
+│  ├─ tools/         # Markdown 工具
+│  ├─ utils/         # 文件、Markdown、EPUB、下载和打印工具
+│  ├─ workbench/     # 工作台状态与文档派生逻辑
+│  └─ main.tsx       # 应用入口
+├─ src-tauri/        # Tauri 2 桌面应用配置和 Rust 入口
+├─ public/           # 图标和 PWA 资源
+├─ docs/             # 项目文档与架构决策记录
+├─ CONTEXT.md        # 领域术语和产品边界
+└─ package.json
 ```
-
-## Privacy
-
-Files are read with the File API and held in page memory only. They are not uploaded to a Joint MD server. Reload/close clears source content; only small preferences and per-document scroll positions may remain in `localStorage`.
-
-See `docs/adr/0002-local-only-no-server-file-processing.md`.
-
-## Out of scope (v1)
-
-- PDF → Markdown, OCR, faithful complex PDF layout
-- Cloud storage, accounts, collaboration
-- Server-side processing of user files
-- Resolving relative assets against each Markdown source file’s original path
-- Exporting EPUB as Markdown, or full EPUB authoring / re-packaging
-
-## License
-
-Private project (`private: true` in `package.json`) unless otherwise stated.
