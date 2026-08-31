@@ -8,18 +8,33 @@ describe('Export Markdown and Print to PDF', () => {
     expect(resolveExportName('notes')).toBe('notes')
   })
 
-  it('exports Merged Document markdown under the Export Name', () => {
+  it('exports Merged Document markdown under the Export Name', async () => {
     const download = vi.fn()
-    const outcome = exportMarkdown('# Hello', 'chapter', download)
+    const outcome = await exportMarkdown('# Hello', 'chapter', download)
 
     expect(download).toHaveBeenCalledWith('# Hello', 'chapter.md')
     expect(outcome.notice).toBeNull()
   })
 
-  it('uses the default Export Name when exporting without one', () => {
+  it('uses the default Export Name when exporting without one', async () => {
     const download = vi.fn()
-    exportMarkdown('body', '', download)
+    await exportMarkdown('body', '', download)
     expect(download).toHaveBeenCalledWith('body', 'merged-document.md')
+  })
+
+  it('does not show a notice when the user cancels saving', async () => {
+    const download = vi.fn(async () => undefined)
+    await expect(exportMarkdown('body', 'notes', download)).resolves.toEqual({ notice: null })
+  })
+
+  it('returns a notice when Markdown saving fails', async () => {
+    const download = vi.fn(async () => {
+      throw new Error('写入被拒绝')
+    })
+
+    await expect(exportMarkdown('body', 'notes', download)).resolves.toEqual({
+      notice: 'Markdown 导出失败：写入被拒绝',
+    })
   })
 
   it('does nothing when Print to PDF has no rendered HTML', () => {

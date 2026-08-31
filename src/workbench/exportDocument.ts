@@ -1,7 +1,7 @@
-import { downloadFile } from '../utils/download'
+import { saveMarkdownFile } from '../utils/download'
 import { printPdf } from '../utils/print'
 
-export type DownloadMarkdown = (content: string, fileName: string) => void
+export type DownloadMarkdown = (content: string, fileName: string) => void | Promise<void>
 export type OpenPrintToPdf = (html: string, title: string) => string | null
 
 export type ExportOutcome = {
@@ -9,9 +9,7 @@ export type ExportOutcome = {
   notice: string | null
 }
 
-const defaultDownload: DownloadMarkdown = (content, fileName) => {
-  downloadFile(content, fileName, 'text/markdown;charset=utf-8')
-}
+const defaultDownload: DownloadMarkdown = saveMarkdownFile
 
 const defaultPrint: OpenPrintToPdf = (html, title) => printPdf(html, title)
 
@@ -22,14 +20,19 @@ export const resolveExportName = (exportName: string) => exportName.trim() || 'm
  * Export Markdown: download the Merged Document as `.md`.
  * Returns no notice on success (silent download).
  */
-export const exportMarkdown = (
+export const exportMarkdown = async (
   markdown: string,
   exportName: string,
   download: DownloadMarkdown = defaultDownload,
-): ExportOutcome => {
+): Promise<ExportOutcome> => {
   const base = resolveExportName(exportName)
-  download(markdown, `${base}.md`)
-  return { notice: null }
+  try {
+    await download(markdown, `${base}.md`)
+    return { notice: null }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '未知错误'
+    return { notice: `Markdown 导出失败：${message}` }
+  }
 }
 
 /**

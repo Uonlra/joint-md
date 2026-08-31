@@ -265,12 +265,12 @@ export function useWorkbench() {
     scrollWithinPreview(sourceAnchorId(id))
   }
 
-  const exportMarkdown = () => {
+  const exportMarkdown = async () => {
     if (mode === 'epub') {
       failImport('当前是 EPUB 阅读模式，不能导出为 Markdown。')
       return
     }
-    const { notice: nextNotice } = runExportMarkdown(derivedMarkdown.markdown, exportName)
+    const { notice: nextNotice } = await runExportMarkdown(derivedMarkdown.markdown, exportName)
     if (nextNotice) setNotice(nextNotice)
   }
 

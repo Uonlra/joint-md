@@ -75,4 +75,9 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
   },
+  server: {
+    watch: {
+      ignored: ['**/src-tauri/**'],
+    },
+  },
 })
